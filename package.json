@@ -16,10 +16,10 @@
     "cap:android": "cap open android"
   },
   "dependencies": {
-    "@capacitor/android": "^6.2.0",
-    "@capacitor/cli": "^6.2.0",
-    "@capacitor/core": "^6.2.0",
-    "@capacitor/ios": "^6.2.0",
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/ios": "^6.2.1",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
     "canvas-confetti": "^1.9.4",

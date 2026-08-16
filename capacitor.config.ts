@@ -1,12 +1,15 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
 /**
  * VELOCE Capacitor Configuration for iOS & Android App Store Deployment
  */
-const config = {
+const config: CapacitorConfig = {
   appId: 'com.veloce.footwear',
   appName: 'VELOCE',
-  webDir: 'out',
+  webDir: 'public',
   server: {
-    // For live reload / production backend connectivity
+    // Configure production URL when pointing native app directly to hosted backend
+    url: process.env.CAPACITOR_SERVER_URL || undefined,
     androidScheme: 'https',
     iosScheme: 'https',
     cleartext: false,
@@ -25,9 +28,6 @@ const config = {
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#09090b',
-    },
-    PushNotifications: {
-      presentationOptions: ['badge', 'sound', 'alert'],
     },
   },
   ios: {
