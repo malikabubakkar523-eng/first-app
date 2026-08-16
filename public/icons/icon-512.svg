@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="pwa-bg-512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b" />
+      <stop offset="100%" stop-color="#09090b" />
+    </linearGradient>
+    <linearGradient id="pwa-v-512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#pwa-bg-512)" />
+  <path 
+    d="M128 116 L214 116 L272 310 L330 116 L416 116 L320 396 L224 396 Z" 
+    fill="url(#pwa-v-512)" 
+    stroke="#09090b"
+    stroke-width="6"
+    stroke-linejoin="round"
+  />
+  <circle cx="400" cy="386" r="24" fill="#f43f5e" />
+</svg>

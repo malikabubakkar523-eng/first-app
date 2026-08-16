@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60" fill="none">
+  <defs>
+    <linearGradient id="veloce-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#F4F4F5" />
+      <stop offset="100%" stop-color="#E4E4E7" />
+    </linearGradient>
+    <filter id="veloce-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+  <!-- Main Italic Bold VELOCE Wordmark -->
+  <text 
+    x="4" 
+    y="46" 
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Montserrat', 'Arial Black', sans-serif" 
+    font-size="44" 
+    font-weight="900" 
+    font-style="italic" 
+    letter-spacing="0.05em"
+    fill="url(#veloce-silver)" 
+    stroke="#09090b" 
+    stroke-width="3.5"
+    stroke-linejoin="round"
+    paint-order="stroke fill"
+    filter="url(#veloce-glow)"
+  >
+    VELOCE
+  </text>
+  <!-- Brand Rose Accent Point -->
+  <circle cx="265" cy="42" r="4.5" fill="#f43f5e" />
+</svg>

@@ -1,0 +1,70 @@
+# Next.js & Node dependencies
+node_modules/
+/.pnp
+.pnp.js
+.yarn/cache
+
+# Production builds
+/.next/
+/out/
+/build/
+dist/
+
+# Local SQLite databases & lockfiles
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db*
+*.db
+*.db-journal
+
+# Environment variables & secrets
+.env*
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Android & iOS Signing Keys & Credentials
+*.keystore
+*.jks
+*.p12
+*.cer
+*.mobileprovision
+*.key
+google-services.json
+GoogleService-Info.plist
+
+# Native Mobile Build Artifacts
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+ios/Pods/
+ios/DerivedData/
+ios/build/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+
+# Debug & system logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# Operating System files
+.DS_Store
+*.pem
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE / Editors
+.vscode/
+.idea/

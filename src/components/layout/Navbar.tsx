@@ -1,0 +1,232 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import {
+  Search,
+  ShoppingBag,
+  Heart,
+  User as UserIcon,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import { useCartStore } from "@/lib/store/cartStore";
+import { useWishlistStore } from "@/lib/store/wishlistStore";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+
+interface NavbarProps {
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: "CUSTOMER" | "ADMIN";
+    avatar?: string | null;
+  } | null;
+  onOpenSearch?: () => void;
+}
+
+export function Navbar({ user, onOpenSearch }: NavbarProps) {
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const cartItemCount = useCartStore((state) => state.getItemCount());
+  const openCart = useCartStore((state) => state.openCart);
+  const wishlistItems = useWishlistStore((state) => state.items);
+
+  useEffect(() => {
+    setMounted(true);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "/shop" },
+    { name: "Sneakers", href: "/category/sneakers" },
+    { name: "Running", href: "/category/running" },
+    { name: "Gallery", href: "/gallery" },
+    { name: "Deals", href: "/shop?deal=true", badge: "40% OFF" },
+    { name: "New Arrivals", href: "/shop?sort=newest" },
+  ];
+
+  return (
+    <>
+      {/* Top Announcement Bar */}
+      <div className="bg-zinc-950 text-zinc-300 text-[11px] sm:text-xs py-1.5 px-3 sm:px-4 border-b border-zinc-800 flex items-center justify-between z-40 relative overflow-hidden">
+        <div className="flex items-center gap-1.5 sm:gap-2 mx-auto truncate text-center">
+          <Sparkles className="w-3.5 h-3.5 text-brand-500 shrink-0 animate-pulse" />
+          <span className="font-medium tracking-wide truncate">
+            Complimentary Global Express Shipping over $150 &nbsp;•&nbsp; Code:{" "}
+            <strong className="text-white font-mono">VELOCE20</strong>
+          </span>
+        </div>
+        {user?.role === "ADMIN" && (
+          <Link
+            href="/admin"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[11px] font-semibold hover:bg-brand-500/30 transition-colors border border-brand-500/30 shrink-0"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Admin Dashboard
+          </Link>
+        )}
+      </div>
+
+      {/* Main Sticky Navbar */}
+      <header
+        className={cn(
+          "sticky top-0 z-40 w-full transition-all duration-300",
+          isScrolled
+            ? "bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-sm border-b border-zinc-200/80 dark:border-zinc-800/80 py-2 sm:py-3.5"
+            : "bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-900 py-2.5 sm:py-4.5"
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between w-full">
+          {/* Left: Brand Logo */}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="relative h-7 sm:h-8 w-28 sm:w-36 flex items-center transition-transform group-hover:scale-105">
+              {/* Dark mode logo */}
+              <Image
+                src="/images/veloce-logo.svg"
+                alt="VELOCE"
+                fill
+                priority
+                sizes="(max-width: 640px) 112px, 144px"
+                className="object-contain object-left hidden dark:block"
+              />
+              {/* Light mode logo */}
+              <Image
+                src="/images/veloce-logo-dark.svg"
+                alt="VELOCE"
+                fill
+                priority
+                sizes="(max-width: 640px) 112px, 144px"
+                className="object-contain object-left block dark:hidden"
+              />
+            </div>
+          </Link>
+
+          {/* Center (Desktop Only): Nav Links */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  prefetch={true}
+                  className={cn(
+                    "relative px-3 py-1.5 text-xs xl:text-sm font-medium transition-colors rounded-full flex items-center gap-1.5",
+                    isActive
+                      ? "text-zinc-950 dark:text-white font-semibold"
+                      : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100/60 dark:hover:bg-zinc-900/60"
+                  )}
+                >
+                  {link.name}
+                  {link.badge && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-500/15 text-brand-600 dark:text-brand-400 px-1.5 py-0.5 rounded-full border border-brand-500/20">
+                      {link.badge}
+                    </span>
+                  )}
+                  {isActive && (
+                    <motion.div
+                      layoutId="navIndicator"
+                      className="absolute bottom-0 left-3 right-3 h-0.5 bg-zinc-950 dark:bg-white rounded-full"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right: Actions Container */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* Search Trigger (Icon on mobile, Pill on desktop) */}
+            <button
+              onClick={onOpenSearch}
+              className="p-2 sm:px-3 sm:py-1.5 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors text-xs border border-transparent sm:border-zinc-200/80 sm:dark:border-zinc-800/80 flex items-center gap-1.5"
+              aria-label="Search shoes"
+            >
+              <Search className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+              <span className="hidden sm:inline text-zinc-400 font-medium">Search...</span>
+              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded border border-zinc-200 dark:border-zinc-700">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* Notification Bell Dropdown */}
+            <NotificationDropdown />
+
+            {/* Light / Dark Mode Toggle */}
+            <ThemeToggle />
+
+            {/* Desktop-Only Wishlist Button (Mobile is in bottom nav) */}
+            <Link
+              href="/wishlist"
+              className="hidden lg:flex relative p-2 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              aria-label="Wishlist"
+            >
+              <Heart className="w-5 h-5" />
+              {mounted && wishlistItems.length > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scaleIn">
+                  {wishlistItems.length}
+                </span>
+              )}
+            </Link>
+
+            {/* Shopping Cart Button */}
+            <button
+              onClick={openCart}
+              className="relative p-1.5 sm:p-2 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              {mounted && cartItemCount > 0 && (
+                <span className="absolute top-0 right-0 w-4 h-4 bg-brand-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+
+            {/* Circular User Profile Avatar */}
+            {user ? (
+              <Link
+                href={user.role === "ADMIN" ? "/admin" : "/account/profile"}
+                className="flex items-center gap-1.5 p-0.5 sm:px-2.5 sm:py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors border border-zinc-200 dark:border-zinc-800 shrink-0"
+                title={`Account: ${user.name}`}
+              >
+                <div className="relative w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-xs overflow-hidden border border-brand-500/40 shrink-0 shadow-sm">
+                  {user.avatar ? (
+                    <Image src={user.avatar} alt={user.name} fill className="object-cover" />
+                  ) : (
+                    <span>{user.name.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <span className="hidden xl:inline text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate max-w-[80px]">
+                  {user.name.split(" ")[0]}
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1 shrink-0"
+              >
+                <UserIcon className="w-3.5 h-3.5 sm:hidden" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+    </>
+  );
+}
