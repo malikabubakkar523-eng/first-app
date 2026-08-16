@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Loader } from "@/components/ui/Loader";
 
 const DELAY_THRESHOLD_MS = 180; // Only show loader if navigation takes >180ms
 const SAFETY_TIMEOUT_MS = 8000; // Never freeze screen longer than 8s
 
-export function SmartPageLoader() {
+function SmartPageLoaderContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -27,7 +27,7 @@ export function SmartPageLoader() {
       safetyTimerRef.current = null;
     }
     setIsVisible(false);
-    currentUrlRef.current = `${pathname}?${searchParams.toString()}`;
+    currentUrlRef.current = `${pathname}?${searchParams ? searchParams.toString() : ""}`;
   }, [pathname, searchParams]);
 
   // Intercept internal link clicks with smart delay threshold
@@ -41,7 +41,7 @@ export function SmartPageLoader() {
 
       // Ignore external, anchor links, mailto, tel, target="_blank", or download links
       if (
-        href.startsWith("http") && !href.startsWith(window.location.origin) ||
+        (href.startsWith("http") && !href.startsWith(window.location.origin)) ||
         href.startsWith("#") ||
         href.startsWith("mailto:") ||
         href.startsWith("tel:") ||
@@ -52,14 +52,18 @@ export function SmartPageLoader() {
       }
 
       // Check if target is different from current URL
-      const targetUrl = new URL(href, window.location.origin);
-      const currentUrl = new URL(window.location.href);
+      try {
+        const targetUrl = new URL(href, window.location.origin);
+        const currentUrl = new URL(window.location.href);
 
-      if (
-        targetUrl.pathname === currentUrl.pathname &&
-        targetUrl.search === currentUrl.search
-      ) {
-        return; // Same page
+        if (
+          targetUrl.pathname === currentUrl.pathname &&
+          targetUrl.search === currentUrl.search
+        ) {
+          return; // Same page
+        }
+      } catch (err) {
+        return;
       }
 
       // Clear existing timers
@@ -107,5 +111,13 @@ export function SmartPageLoader() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function SmartPageLoader() {
+  return (
+    <Suspense fallback={null}>
+      <SmartPageLoaderContent />
+    </Suspense>
   );
 }

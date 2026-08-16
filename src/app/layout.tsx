@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
@@ -50,7 +51,9 @@ export default function RootLayout({
       <body className="antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen selection:bg-brand-500 selection:text-white transition-colors duration-200 overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         <ThemeProvider>
           <ToastProvider>
-            <SmartPageLoader />
+            <Suspense fallback={null}>
+              <SmartPageLoader />
+            </Suspense>
             {children}
             <CartDrawer />
             <MobileBottomNav />
