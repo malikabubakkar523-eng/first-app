@@ -25,17 +25,30 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, category, imageUrl, description, shoeModel, link, order, isActive } = body;
+    const { title, category, imageUrl, videoUrl, mediaType, description, shoeModel, link, order, isActive } = body;
 
-    if (!title || !imageUrl) {
-      return NextResponse.json({ error: "Title and Image URL are required." }, { status: 400 });
+    const chosenMediaType = mediaType === "video" ? "video" : "image";
+    const finalImageUrl = imageUrl || (chosenMediaType === "video" ? "/images/shop-banner.png" : "");
+
+    if (!title) {
+      return NextResponse.json({ error: "Title is required." }, { status: 400 });
+    }
+
+    if (chosenMediaType === "image" && !finalImageUrl) {
+      return NextResponse.json({ error: "Image is required for image gallery items." }, { status: 400 });
+    }
+
+    if (chosenMediaType === "video" && !videoUrl) {
+      return NextResponse.json({ error: "Video file or URL is required for video gallery items." }, { status: 400 });
     }
 
     const item = await db.galleryItem.create({
       data: {
         title,
         category: category || "ALL",
-        imageUrl,
+        imageUrl: finalImageUrl,
+        videoUrl: videoUrl || null,
+        mediaType: chosenMediaType,
         description: description || null,
         shoeModel: shoeModel || null,
         link: link || null,

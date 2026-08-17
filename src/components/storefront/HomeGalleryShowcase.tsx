@@ -79,13 +79,26 @@ export function HomeGalleryShowcase({ items }: { items?: any[] }) {
               transition={{ delay: index * 0.05, duration: 0.25 }}
               className="group relative rounded-3xl overflow-hidden bg-zinc-950 aspect-[4/5] shadow-lg hover:shadow-2xl border border-zinc-200/80 dark:border-zinc-800/80 transition-all duration-500 hover:-translate-y-1.5"
             >
-              <Image
-                src={item.imageUrl}
-                alt={item.title}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover group-hover:scale-108 transition-transform duration-700 brightness-95 group-hover:brightness-100"
-              />
+              {/* Image / Video Layer */}
+              {(item.mediaType === "video" || !!item.videoUrl) && !!item.videoUrl ? (
+                <video
+                  src={item.videoUrl}
+                  poster={item.imageUrl}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-95 group-hover:brightness-100"
+                />
+              ) : (
+                <Image
+                  src={item.imageUrl}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="object-cover group-hover:scale-108 transition-transform duration-700 brightness-95 group-hover:brightness-100"
+                />
+              )}
 
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-black/20 opacity-85 group-hover:opacity-90 transition-opacity" />
 

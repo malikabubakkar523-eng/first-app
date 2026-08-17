@@ -37,6 +37,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
     { label: "Inventory", href: "/admin/inventory", icon: Boxes },
     { label: "Hero Banners", href: "/admin/hero", icon: Layers },
+    { label: "Shop Banner", href: "/admin/shop-banner", icon: Store },
     { label: "Lookbook Gallery", href: "/admin/gallery", icon: Camera },
     { label: "Deals & Offers", href: "/admin/deals", icon: Flame },
     { label: "Coupons", href: "/admin/coupons", icon: Tag },

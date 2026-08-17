@@ -32,6 +32,8 @@ export interface GalleryItemType {
   title: string;
   category: string;
   imageUrl: string;
+  videoUrl?: string | null;
+  mediaType?: string | null;
   description: string | null;
   shoeModel: string | null;
   link?: string | null;
@@ -296,14 +298,26 @@ export function GalleryClient({ initialItems }: { initialItems: GalleryItemType[
                 onClick={() => setSelectedItemIndex(index)}
                 className="group relative rounded-3xl overflow-hidden bg-zinc-950 aspect-[4/5] cursor-pointer shadow-lg hover:shadow-2xl border border-zinc-200/80 dark:border-zinc-800/90 transition-all duration-500 hover:-translate-y-1.5 active:scale-[0.99] select-none"
               >
-                {/* Gallery Image with Smooth Zoom */}
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover group-hover:scale-108 transition-transform duration-700 brightness-95 group-hover:brightness-100"
-                />
+                {/* Gallery Image / Video with Smooth Presentation */}
+                {(item.mediaType === "video" || !!item.videoUrl) && !!item.videoUrl ? (
+                  <video
+                    src={item.videoUrl}
+                    poster={item.imageUrl}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-95 group-hover:brightness-100"
+                  />
+                ) : (
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-108 transition-transform duration-700 brightness-95 group-hover:brightness-100"
+                  />
+                )}
 
                 {/* Gradient Vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-black/20 opacity-85 group-hover:opacity-90 transition-opacity" />
@@ -431,15 +445,29 @@ export function GalleryClient({ initialItems }: { initialItems: GalleryItemType[
                 <ChevronRight className="w-5 h-5" />
               </button>
 
-              {/* Large Image View */}
-              <div className="relative w-full flex-1 min-h-[300px] xs:min-h-[400px] lg:min-h-[580px] bg-zinc-950 flex items-center justify-center p-2">
-                <Image
-                  src={selectedItem.imageUrl}
-                  alt={selectedItem.title}
-                  fill
-                  className="object-contain"
-                  priority
-                />
+              {/* Image / Video Display Container */}
+              <div className="relative flex-1 min-h-[340px] sm:min-h-[460px] lg:min-h-full bg-zinc-950 flex items-center justify-center p-4 sm:p-8">
+                {(selectedItem.mediaType === "video" || !!selectedItem.videoUrl) && !!selectedItem.videoUrl ? (
+                  <video
+                    key={selectedItem.videoUrl}
+                    src={selectedItem.videoUrl}
+                    poster={selectedItem.imageUrl}
+                    controls
+                    autoPlay
+                    loop
+                    playsInline
+                    className="max-h-[70vh] w-auto rounded-2xl object-contain"
+                  />
+                ) : (
+                  <Image
+                    src={selectedItem.imageUrl}
+                    alt={selectedItem.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 70vw"
+                    className="object-contain"
+                    priority
+                  />
+                )}
               </div>
 
               {/* Detail Sidebar */}

@@ -343,6 +343,8 @@ model GalleryItem {
   title       String
   category    String   @default("ALL")
   imageUrl    String
+  videoUrl    String?
+  mediaType   String?  @default("image")
   description String?
   shoeModel   String?
   link        String?
@@ -370,6 +372,20 @@ model HeroBanner {
   updatedAt DateTime @updatedAt
 
   @@index([isActive, order])
+}
+
+model ShopBanner {
+  id        String   @id @default("default")
+  badge     String?  @default("NEW ARRIVALS • SPRING/SUMMER 2026")
+  heading   String   @default("FRESH STYLES. BOLD MOVES.")
+  subtitle  String?  @default("Step into the new season with premium comfort and effortless style. High performance meets runway aesthetics.")
+  imageUrl  String   @default("/images/shop-banner.png")
+  videoUrl  String?
+  mediaType String   @default("image")
+  ctaText   String?  @default("SHOP NEW ARRIVALS")
+  ctaLink   String?  @default("/shop?sort=newest")
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
 }
 
 model StoreSettings {

@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 
 export type ContentType =
   | "HERO"
+  | "SHOP_BANNER"
   | "GALLERY"
   | "PRODUCT"
   | "DEAL"
@@ -18,6 +19,7 @@ const globalSyncState: SyncState = {
   version: Date.now(),
   timestamps: {
     HERO: Date.now(),
+    SHOP_BANNER: Date.now(),
     GALLERY: Date.now(),
     PRODUCT: Date.now(),
     DEAL: Date.now(),
@@ -54,6 +56,9 @@ export function broadcastContentUpdate(type: ContentType) {
     switch (type) {
       case "HERO":
         revalidatePath("/");
+        break;
+      case "SHOP_BANNER":
+        revalidatePath("/shop");
         break;
       case "GALLERY":
         revalidatePath("/");

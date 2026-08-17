@@ -14,7 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const { id } = params;
     const body = await req.json();
-    const { title, category, imageUrl, description, shoeModel, link, order, isActive } = body;
+    const { title, category, imageUrl, videoUrl, mediaType, description, shoeModel, link, order, isActive } = body;
 
     const updated = await db.galleryItem.update({
       where: { id },
@@ -22,6 +22,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(title !== undefined && { title }),
         ...(category !== undefined && { category }),
         ...(imageUrl !== undefined && { imageUrl }),
+        ...(videoUrl !== undefined && { videoUrl }),
+        ...(mediaType !== undefined && { mediaType }),
         ...(description !== undefined && { description }),
         ...(shoeModel !== undefined && { shoeModel }),
         ...(link !== undefined && { link }),
