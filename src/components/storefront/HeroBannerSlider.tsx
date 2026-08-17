@@ -90,19 +90,20 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
   };
 
   // If no database-configured custom slides, fallback cleanly to existing cinematic shoe background
+  // If no database-configured custom slides, fallback cleanly to existing cinematic shoe background
   if (!hasCustomSlides) {
     return (
-      <section className="relative min-h-[580px] sm:min-h-[660px] lg:min-h-[740px] flex items-center pt-8 sm:pt-14 pb-14 sm:pb-24 overflow-hidden bg-zinc-950 text-white select-none">
+      <section className="relative min-h-[520px] sm:min-h-[580px] lg:min-h-[600px] xl:min-h-[640px] flex items-center pt-2 sm:pt-10 pb-12 sm:pb-20 overflow-hidden bg-zinc-950 text-white select-none">
         <HeroShoeBackground />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="max-w-2xl xl:max-w-3xl space-y-6 text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 text-brand-400 text-xs font-bold border border-zinc-800 backdrop-blur-md shadow-sm">
+          <div className="max-w-xl lg:max-w-2xl space-y-3.5 sm:space-y-6 text-left -mt-10 sm:mt-0">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-zinc-900/90 text-brand-400 text-[11px] sm:text-xs font-bold border border-zinc-800 backdrop-blur-md shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-brand-500 animate-spin" style={{ animationDuration: "6s" }} />
               <span>SPRING / SUMMER 2026 ARCHIVE</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl xl:text-7xl font-display font-black tracking-tight text-white leading-[1.06]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.08]">
               ENGINEERED <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-500">
                 PROPULSION.
@@ -111,14 +112,14 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
               TAILORED FORM.
             </h1>
 
-            <p className="text-sm sm:text-base text-zinc-300 sm:text-zinc-400 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm lg:text-base text-zinc-300 sm:text-zinc-400 max-w-lg leading-relaxed">
               Step into the apex of international footwear. Supercritical nitrogen foam fused with aerospace-grade carbon fibre plates, handcrafted with Italian precision.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2 max-w-md sm:max-w-none">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 max-w-xs sm:max-w-none">
               <Link
                 href="/shop"
-                className="px-8 py-4 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold shadow-2xl shadow-white/10 hover:scale-105 transition-all flex items-center justify-center gap-2.5 group"
+                className="px-7 py-3.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold shadow-2xl shadow-white/10 hover:scale-105 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>SHOP THE COLLECTION</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -139,14 +140,14 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative min-h-[580px] sm:min-h-[660px] lg:min-h-[740px] flex items-center pt-8 sm:pt-14 pb-14 sm:pb-24 overflow-hidden bg-zinc-950 text-white select-none"
+      className="relative min-h-[520px] sm:min-h-[580px] lg:min-h-[600px] xl:min-h-[640px] flex items-center pt-2 sm:pt-10 pb-12 sm:pb-20 overflow-hidden bg-zinc-950 text-white select-none"
     >
       {/* Background Slides with AnimatePresence */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide.id}
-            initial={{ opacity: 0, scale: 1.05 }}
+            initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -158,7 +159,7 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
               fill
               priority
               sizes="100vw"
-              className="object-cover object-center"
+              className="object-cover object-bottom sm:object-center"
             />
             {/* Cinematic High-Contrast Gradient Layering */}
             <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 md:via-zinc-950/60 lg:via-zinc-950/40 to-transparent pointer-events-none" />
@@ -173,37 +174,37 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
         <AnimatePresence mode="wait">
           <motion.div
             key={`content-${currentSlide.id}`}
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="max-w-2xl xl:max-w-3xl space-y-6 text-left"
+            className="max-w-xl lg:max-w-2xl space-y-3.5 sm:space-y-6 text-left -mt-10 sm:mt-0"
           >
             {/* Badge */}
             {currentSlide.badge && (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 text-brand-400 text-xs font-bold border border-zinc-800 backdrop-blur-md shadow-sm">
+              <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-zinc-900/90 text-brand-400 text-[11px] sm:text-xs font-bold border border-zinc-800 backdrop-blur-md shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-brand-500 animate-spin" style={{ animationDuration: "6s" }} />
                 <span>{currentSlide.badge}</span>
               </div>
             )}
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-6xl xl:text-7xl font-display font-black tracking-tight text-white leading-[1.06] whitespace-pre-line">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.08] whitespace-pre-line">
               {currentSlide.heading}
             </h1>
 
             {/* Subtitle */}
             {currentSlide.subtitle && (
-              <p className="text-sm sm:text-base text-zinc-300 sm:text-zinc-400 max-w-xl leading-relaxed">
+              <p className="text-xs sm:text-sm lg:text-base text-zinc-300 sm:text-zinc-400 max-w-lg leading-relaxed">
                 {currentSlide.subtitle}
               </p>
             )}
 
             {/* CTA Button */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2 max-w-md sm:max-w-none">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 max-w-xs sm:max-w-none">
               <Link
                 href={currentSlide.ctaLink || "/shop"}
-                className="px-8 py-4 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold shadow-2xl shadow-white/10 hover:scale-105 transition-all flex items-center justify-center gap-2.5 group cursor-pointer"
+                className="px-7 py-3.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold shadow-2xl shadow-white/10 hover:scale-105 transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <span>{currentSlide.ctaText || "SHOP THE COLLECTION"}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

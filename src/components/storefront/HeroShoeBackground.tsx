@@ -103,9 +103,9 @@ export function HeroShoeBackground() {
         className="hidden sm:block absolute right-[2%] lg:right-[8%] xl:right-[12%] top-1/3 -translate-y-1/2 w-[500px] lg:w-[680px] xl:w-[800px] h-[500px] lg:h-[680px] xl:h-[800px] rounded-full border border-dashed border-zinc-800/60 pointer-events-none opacity-40"
       />
 
-      {/* Large Dominant Floating Shoe Container - Positioned Higher Up for PC & Mobile */}
+      {/* Balanced Floating Shoe Container: lowered on mobile, perfectly scaled on PC */}
       <div className="relative w-full h-full max-w-7xl mx-auto flex items-center justify-end">
-        <div className="absolute -right-4 sm:right-2 md:right-8 lg:right-0 xl:right-4 top-[32%] sm:top-[36%] lg:top-[38%] xl:top-[40%] -translate-y-1/2 w-[340px] xs:w-[420px] sm:w-[560px] md:w-[680px] lg:w-[780px] xl:w-[920px] h-[280px] xs:h-[340px] sm:h-[440px] md:h-[520px] lg:h-[590px] xl:h-[680px] z-0">
+        <div className="absolute -right-2 sm:right-2 md:right-8 lg:right-4 xl:right-8 top-[62%] sm:top-[50%] md:top-[44%] lg:top-[46%] xl:top-[48%] -translate-y-1/2 w-[270px] xs:w-[320px] sm:w-[420px] md:w-[500px] lg:w-[560px] xl:w-[640px] h-[210px] xs:h-[250px] sm:h-[330px] md:h-[390px] lg:h-[430px] xl:h-[490px] z-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentShoe.id}
