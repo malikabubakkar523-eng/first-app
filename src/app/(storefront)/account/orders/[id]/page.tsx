@@ -14,6 +14,8 @@ import {
   ArrowLeft,
   Check,
   ShieldCheck,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 
 export const revalidate = 0;
@@ -42,18 +44,23 @@ export default async function OrderTrackingPage({
   }
 
   const timelineSteps = [
-    { key: "PENDING", label: "Order Placed", desc: "Received and authenticated" },
+    { key: "PENDING", label: "Order Placed", desc: "Received & authenticated" },
     { key: "CONFIRMED", label: "Confirmed", desc: "Inventory allocated & boxed" },
-    { key: "PROCESSING", label: "Processing", desc: "Hand-inspected by horologists" },
-    { key: "SHIPPED", label: "Shipped", desc: "Dispatched with tracking courier" },
-    { key: "DELIVERED", label: "Delivered", desc: "Signed and handed over" },
+    { key: "PROCESSING", label: "In Processing", desc: "12-point quality check" },
+    { key: "SHIPPED", label: "Dispatched", desc: "Air express courier transit" },
+    { key: "DELIVERED", label: "Delivered", desc: "Handed over & completed" },
   ];
 
   const statusOrder = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"];
   const currentIndex = statusOrder.indexOf(order.orderStatus);
 
+  const statusConfig = ORDER_STATUSES.find((s) => s.value === order.orderStatus) || {
+    label: order.orderStatus,
+    color: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
@@ -63,9 +70,14 @@ export default async function OrderTrackingPage({
           <h1 className="text-3xl font-display font-black text-zinc-900 dark:text-white tracking-tight mt-1">
             Order #{order.orderNumber}
           </h1>
-          <p className="text-xs text-zinc-500 mt-1">
-            Created on {formatDateTime(order.createdAt)} • Status: <strong className="text-zinc-900 dark:text-white font-bold">{order.orderStatus}</strong>
-          </p>
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ${statusConfig.color}`}>
+              {statusConfig.label}
+            </span>
+            <span className="text-xs text-zinc-500">
+              Placed on {formatDateTime(order.createdAt)}
+            </span>
+          </div>
         </div>
         <Link
           href="/account/orders"
@@ -75,55 +87,94 @@ export default async function OrderTrackingPage({
         </Link>
       </div>
 
-      {/* Progress Timeline Graphic */}
-      <div className="p-6 sm:p-10 rounded-3xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 space-y-8">
-        <h2 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-          Delivery Progress
-        </h2>
+      {/* Cancelled Banner */}
+      {order.orderStatus === "CANCELLED" && (
+        <div className="p-6 rounded-3xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-4">
+          <div className="p-3 rounded-2xl bg-rose-500/20 text-rose-500 shrink-0">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-rose-500 uppercase tracking-wider">
+              Order Cancelled
+            </h3>
+            <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+              This order has been cancelled. Any payments processed have been scheduled for full refund to your original payment method.
+            </p>
+            {order.notes && (
+              <div className="pt-2 text-xs font-mono text-rose-400">
+                <strong>Reason:</strong> {order.notes}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-        {/* Stepper bar */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
-          {timelineSteps.map((step, idx) => {
-            const isCompleted = currentIndex >= idx && order.orderStatus !== "CANCELLED";
-            const isCurrent = currentIndex === idx && order.orderStatus !== "CANCELLED";
+      {/* Progress Timeline Graphic (Only if not cancelled) */}
+      {order.orderStatus !== "CANCELLED" && (
+        <div className="p-6 sm:p-10 rounded-3xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 space-y-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+              Live Fulfillment Timeline
+            </h2>
+            <span className="text-xs text-zinc-400 font-mono">
+              Last updated: Real-time
+            </span>
+          </div>
 
-            return (
-              <div key={step.key} className="flex md:flex-col items-start gap-4 md:gap-3 relative">
-                <div
-                  className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm shrink-0 transition-all ${
-                    isCompleted
-                      ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-md ring-4 ring-zinc-200 dark:ring-zinc-800"
-                      : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400"
-                  }`}
-                >
-                  {isCompleted ? <Check className="w-5 h-5" /> : idx + 1}
-                </div>
+          {/* Stepper bar */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
+            {timelineSteps.map((step, idx) => {
+              const isCompleted = currentIndex >= idx;
+              const isCurrent = currentIndex === idx;
 
-                <div className="space-y-0.5">
-                  <p
-                    className={`text-xs font-bold ${
-                      isCompleted ? "text-zinc-950 dark:text-white" : "text-zinc-400"
+              return (
+                <div key={step.key} className="flex md:flex-col items-start gap-4 md:gap-3 relative">
+                  <div
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm shrink-0 transition-all ${
+                      isCompleted
+                        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-md ring-4 ring-zinc-200 dark:ring-zinc-800"
+                        : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400"
                     }`}
                   >
-                    {step.label}
-                  </p>
-                  <p className="text-[11px] text-zinc-500 leading-tight">{step.desc}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                    {isCompleted ? <Check className="w-5 h-5" /> : idx + 1}
+                  </div>
 
-        {order.trackingNumber && (
-          <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-xs flex items-center justify-between text-brand-600 dark:text-brand-400 font-semibold">
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4" />
-              <span>Courier Tracking Number: <strong className="font-mono">{order.trackingNumber}</strong></span>
-            </div>
-            <span className="text-[11px] font-mono uppercase">Global Air Express</span>
+                  <div className="space-y-0.5">
+                    <p
+                      className={`text-xs font-bold ${
+                        isCompleted ? "text-zinc-950 dark:text-white" : "text-zinc-400"
+                      }`}
+                    >
+                      {step.label}
+                    </p>
+                    <p className="text-[11px] text-zinc-500 leading-tight">{step.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        )}
-      </div>
+
+          {order.trackingNumber && (
+            <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-xs flex items-center justify-between text-brand-600 dark:text-brand-400 font-semibold">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                <span>Courier Tracking Number: <strong className="font-mono">{order.trackingNumber}</strong></span>
+              </div>
+              <span className="text-[11px] font-mono uppercase">Global Air Express</span>
+            </div>
+          )}
+
+          {order.notes && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-2.5">
+              <Info className="w-4 h-4 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block font-bold">Atelier Note:</strong>
+                <span>{order.notes}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Breakdown Details */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">

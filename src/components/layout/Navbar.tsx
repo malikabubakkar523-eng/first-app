@@ -186,29 +186,29 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
             {/* Shopping Cart Button */}
             <button
               onClick={openCart}
-              className="relative p-1.5 sm:p-2 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              className="relative p-2 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              <ShoppingBag className="w-5 h-5" />
               {mounted && cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 w-4 h-4 bg-brand-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-brand-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                   {cartItemCount}
                 </span>
               )}
             </button>
 
-            {/* Circular User Profile Avatar */}
+            {/* Circular User Profile Avatar (Fixed & Prominent on Mobile) */}
             {user ? (
               <Link
                 href={user.role === "ADMIN" ? "/admin" : "/account/profile"}
-                className="flex items-center gap-1.5 p-0.5 sm:px-2.5 sm:py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors border border-zinc-200 dark:border-zinc-800 shrink-0"
+                className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all border border-zinc-300 dark:border-zinc-700 shrink-0 ring-1 ring-brand-500/20 shadow-sm"
                 title={`Account: ${user.name}`}
               >
-                <div className="relative w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-xs overflow-hidden border border-brand-500/40 shrink-0 shadow-sm">
+                <div className="relative w-8 h-8 sm:w-8 sm:h-8 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-xs overflow-hidden border border-white dark:border-zinc-900 ring-2 ring-brand-500/50 shrink-0 shadow-md">
                   {user.avatar ? (
                     <Image src={user.avatar} alt={user.name} fill className="object-cover" />
                   ) : (
-                    <span>{user.name.charAt(0).toUpperCase()}</span>
+                    <span className="font-display font-black text-xs">{user.name.charAt(0).toUpperCase()}</span>
                   )}
                 </div>
                 <span className="hidden xl:inline text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate max-w-[80px]">
@@ -218,10 +218,10 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
             ) : (
               <Link
                 href="/login"
-                className="p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1 shrink-0"
+                className="h-8 sm:h-auto px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 text-xs font-bold hover:opacity-90 transition-all flex items-center gap-1.5 shrink-0 shadow-sm border border-zinc-800 dark:border-zinc-200"
               >
-                <UserIcon className="w-3.5 h-3.5 sm:hidden" />
-                <span className="hidden sm:inline">Sign In</span>
+                <UserIcon className="w-4 h-4 text-brand-400 dark:text-brand-600 sm:text-inherit" />
+                <span className="text-[11px] sm:text-xs font-bold">Sign In</span>
               </Link>
             )}
           </div>

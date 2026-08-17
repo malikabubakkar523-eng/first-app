@@ -24,6 +24,7 @@ export default async function AdminGalleryPage() {
 
   const womenCount = items.filter((i) => i.category === "WOMEN").length;
   const menCount = items.filter((i) => i.category === "MEN").length;
+  const kidsCount = items.filter((i) => i.category === "KIDS").length;
 
   return (
     <div className="space-y-8">
@@ -37,40 +38,50 @@ export default async function AdminGalleryPage() {
             Lookbook & Runway Gallery
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Manage high-definition editorial and campaign photos of models styling VELOCE footwear.
+            Manage high-definition editorial and campaign photos of Men, Women, and Kids styling VELOCE footwear.
           </p>
         </div>
       </div>
 
       {/* Quick Statistics Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-brand-500/15 text-brand-500 flex items-center justify-center">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 sm:p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-brand-500/15 text-brand-500 flex items-center justify-center shrink-0">
             <Camera className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-zinc-400">Total Lookbook Photos</p>
-            <p className="text-xl font-black font-display text-white">{items.length}</p>
+            <p className="text-[10px] sm:text-[11px] font-mono uppercase text-zinc-400">Total Lookbook</p>
+            <p className="text-lg sm:text-xl font-black font-display text-white">{items.length}</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/15 text-rose-400 flex items-center justify-center">
+        <div className="p-4 sm:p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-zinc-400">Women's Campaign Photos</p>
-            <p className="text-xl font-black font-display text-white">{womenCount}</p>
+            <p className="text-[10px] sm:text-[11px] font-mono uppercase text-zinc-400">Women's Looks</p>
+            <p className="text-lg sm:text-xl font-black font-display text-white">{womenCount}</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center">
+        <div className="p-4 sm:p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
             <ImageIcon className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-zinc-400">Men's Street & Runway Photos</p>
-            <p className="text-xl font-black font-display text-white">{menCount}</p>
+            <p className="text-[10px] sm:text-[11px] font-mono uppercase text-zinc-400">Men's Looks</p>
+            <p className="text-lg sm:text-xl font-black font-display text-white">{menCount}</p>
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[10px] sm:text-[11px] font-mono uppercase text-zinc-400">Kids & Youth</p>
+            <p className="text-lg sm:text-xl font-black font-display text-white">{kidsCount}</p>
           </div>
         </div>
       </div>

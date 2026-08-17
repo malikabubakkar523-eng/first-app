@@ -338,7 +338,7 @@ export function AdminGalleryManagerClient({ initialItems }: { initialItems: Gall
       {/* Control Bar: Categories Filter & Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-900 border border-zinc-800">
         <div className="flex flex-wrap gap-2">
-          {["ALL", "WOMEN", "MEN", "EDITORIAL", "STREETWEAR"].map((cat) => (
+          {["ALL", "WOMEN", "MEN", "KIDS", "EDITORIAL", "STREETWEAR"].map((cat) => (
             <button
               key={cat}
               onClick={() => setFilterCategory(cat)}
@@ -348,7 +348,7 @@ export function AdminGalleryManagerClient({ initialItems }: { initialItems: Gall
                   : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
               }`}
             >
-              {cat === "ALL" ? "All Photos" : cat}
+              {cat === "ALL" ? "All Photos" : cat === "KIDS" ? "Kids & Youth" : cat}
             </button>
           ))}
         </div>
@@ -634,6 +634,7 @@ export function AdminGalleryManagerClient({ initialItems }: { initialItems: Gall
                   >
                     <option value="WOMEN">Women&apos;s Runway & Track</option>
                     <option value="MEN">Men&apos;s Street & Atelier</option>
+                    <option value="KIDS">Kids &amp; Youth Collection</option>
                     <option value="EDITORIAL">Editorial & Backstage</option>
                     <option value="STREETWEAR">Streetwear & Culture</option>
                   </select>

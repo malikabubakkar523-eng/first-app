@@ -29,7 +29,7 @@ export default async function ProfilePage() {
     redirect("/login?callbackUrl=/account/profile");
   }
 
-  const [user, wishlistCount] = await Promise.all([
+  const [user, wishlistCount, unreadNotifsCount] = await Promise.all([
     db.user.findUnique({
       where: { id: session.id },
       include: {
@@ -42,6 +42,7 @@ export default async function ProfilePage() {
       },
     }),
     db.wishlistItem.count({ where: { userId: session.id } }),
+    db.notification.count({ where: { userId: session.id, isRead: false } }),
   ]);
 
   if (!user) {
@@ -219,6 +220,34 @@ export default async function ProfilePage() {
           </h2>
 
           <div className="space-y-2.5">
+            <Link
+              href="/account/notifications"
+              className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 flex items-center justify-between transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center relative">
+                  <Clock className="w-4 h-4" />
+                  {unreadNotifsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulse" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">
+                      Notification Center
+                    </p>
+                    {unreadNotifsCount > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full bg-brand-500 text-white text-[9px] font-bold">
+                        {unreadNotifsCount} new
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-zinc-500">Order alerts & status updates</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-white" />
+            </Link>
+
             <Link
               href="/wishlist"
               className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 flex items-center justify-between transition-all group"

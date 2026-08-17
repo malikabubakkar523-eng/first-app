@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { CURATED_GALLERY_ITEMS } from "@/lib/galleryData";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,12 @@ export async function GET() {
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
+    const displayItems = items && items.length > 0 ? items : CURATED_GALLERY_ITEMS;
+
     return NextResponse.json(
       {
         success: true,
-        items,
+        items: displayItems,
       },
       {
         headers: {

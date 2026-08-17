@@ -143,6 +143,7 @@ export default async function AdminOrderDetailPage({
             currentStatus={order.orderStatus}
             currentPaymentStatus={order.paymentStatus}
             currentTrackingNumber={order.trackingNumber}
+            currentNotes={order.notes}
           />
         </div>
       </div>

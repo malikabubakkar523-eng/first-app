@@ -6,6 +6,8 @@ import { Sparkles, Camera } from "lucide-react";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import { CURATED_GALLERY_ITEMS } from "@/lib/galleryData";
+
 export default async function GalleryPage() {
   let items: any[] = [];
   try {
@@ -17,8 +19,11 @@ export default async function GalleryPage() {
     console.warn("⚠️ GalleryPage data query fallback:", error);
   }
 
+  // If database table is empty or unpopulated, use our rich curated Men, Women & Kids lookbook data
+  const displayItems = items && items.length > 0 ? items : CURATED_GALLERY_ITEMS;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 pb-28 sm:pb-16 space-y-8 sm:space-y-12">
       {/* Header Banner */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-brand-500 text-xs font-bold uppercase tracking-wider">
@@ -34,7 +39,7 @@ export default async function GalleryPage() {
       </div>
 
       {/* Main Gallery Items */}
-      <GalleryClient initialItems={items} />
+      <GalleryClient initialItems={displayItems} />
     </div>
   );
 }

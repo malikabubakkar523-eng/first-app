@@ -1,39 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execSync } from "child_process";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    // Check if tables exist by testing a query
-    try {
-      const userCount = await db.user.count();
-      return NextResponse.json({
-        success: true,
-        message: "Database tables already exist and are active.",
-        users: userCount,
-      });
-    } catch (queryErr: any) {
-      // Table doesn't exist, run prisma db push
-      console.log("⚡ Auto-creating database tables via API...");
-      execSync("npx prisma db push --accept-data-loss", { stdio: "inherit", env: process.env });
-      
-      try {
-        execSync("npx tsx prisma/seed.ts", { stdio: "inherit", env: process.env });
-      } catch (e) {}
+    const [userCount, productCount, categoryCount, orderCount] = await Promise.all([
+      db.user.count(),
+      db.product.count(),
+      db.category.count(),
+      db.order.count(),
+    ]);
 
-      return NextResponse.json({
-        success: true,
-        message: "Database tables successfully created and seeded!",
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      status: "HEALTHY",
+      message: "Database connection active and persistent.",
+      statistics: {
+        users: userCount,
+        products: productCount,
+        categories: categoryCount,
+        orders: orderCount,
+      },
+    });
   } catch (error: any) {
-    console.error("Database initialization error:", error);
+    console.error("Database health check error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "Failed to initialize database tables.",
+        status: "ERROR",
+        error: error.message || "Failed to reach persistent PostgreSQL database.",
       },
       { status: 500 }
     );

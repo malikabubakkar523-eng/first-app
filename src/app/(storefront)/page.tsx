@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { HeroBannerSlider } from "@/components/storefront/HeroBannerSlider";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { DealsCountdown } from "@/components/storefront/DealsCountdown";
+import { HomeGalleryShowcase } from "@/components/storefront/HomeGalleryShowcase";
+import { CURATED_GALLERY_ITEMS } from "@/lib/galleryData";
 import {
   ArrowRight,
   Sparkles,
@@ -25,6 +27,7 @@ export default async function HomePage() {
   let newArrivals: any[] = [];
   let activeDeal: any = null;
   let saleProducts: any[] = [];
+  let galleryItems: any[] = [];
 
   try {
     const data = await Promise.all([
@@ -82,6 +85,11 @@ export default async function HomePage() {
           sizes: true,
         },
       }),
+      // Lookbook Gallery items
+      db.galleryItem.findMany({
+        where: { isActive: true },
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      }),
     ]);
 
     heroBanners = data[0];
@@ -90,8 +98,10 @@ export default async function HomePage() {
     newArrivals = data[3];
     activeDeal = data[4];
     saleProducts = data[5];
+    galleryItems = data[6] && data[6].length > 0 ? data[6] : CURATED_GALLERY_ITEMS;
   } catch (error) {
     console.warn("⚠️ [Prerender Notice] Database query fallback triggered:", error);
+    galleryItems = CURATED_GALLERY_ITEMS;
   }
 
   return (
@@ -375,7 +385,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 8. BRAND VALUE PROPOSITION */}
+      {/* 8. SS26 LOOKBOOK & RUNWAY GALLERY SHOWCASE (Men, Women, and Kids Spotlights) */}
+      <HomeGalleryShowcase items={galleryItems} />
+
+      {/* 9. BRAND VALUE PROPOSITION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="p-8 sm:p-12 rounded-3xl bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800">
           <div className="max-w-2xl mx-auto text-center space-y-3 mb-12">
