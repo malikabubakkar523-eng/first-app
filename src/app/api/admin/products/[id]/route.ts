@@ -62,14 +62,48 @@ export async function PATCH(
       sizes,
     } = body;
 
+    // Safely resolve categoryId if provided
+    let resolvedCategoryId: string | undefined = undefined;
+    if (categoryId && categoryId.trim() !== "") {
+      const matchedCat = await db.category.findFirst({
+        where: {
+          OR: [
+            { id: categoryId },
+            { slug: categoryId },
+            { name: { equals: categoryId, mode: "insensitive" } },
+          ],
+        },
+      });
+      if (matchedCat) resolvedCategoryId = matchedCat.id;
+    }
+
+    // Safely resolve brandId if provided
+    let resolvedBrandId: string | null | undefined = undefined;
+    if (brandId !== undefined) {
+      if (!brandId || brandId.trim() === "") {
+        resolvedBrandId = null;
+      } else {
+        const matchedBrand = await db.brand.findFirst({
+          where: {
+            OR: [
+              { id: brandId },
+              { slug: brandId },
+              { name: { equals: brandId, mode: "insensitive" } },
+            ],
+          },
+        });
+        resolvedBrandId = matchedBrand ? matchedBrand.id : null;
+      }
+    }
+
     // Update product core fields
     const product = await db.product.update({
       where: { id: params.id },
       data: {
         name: name || undefined,
-        sku: sku || undefined,
-        categoryId: categoryId || undefined,
-        brandId: brandId !== undefined ? brandId : undefined,
+        sku: sku ? sku.trim().toUpperCase() : undefined,
+        categoryId: resolvedCategoryId,
+        brandId: resolvedBrandId,
         price: price !== undefined ? Number(price) : undefined,
         salePrice: salePrice !== undefined ? (salePrice ? Number(salePrice) : null) : undefined,
         description: description !== undefined ? description : undefined,

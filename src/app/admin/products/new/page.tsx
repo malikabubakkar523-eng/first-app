@@ -42,15 +42,23 @@ export default function AdminNewProductPage() {
     "45": 2,
   });
 
+  const [brands, setBrands] = useState<any[]>([]);
+  const [brandId, setBrandId] = useState("");
+
   React.useEffect(() => {
-    // Fetch categories
-    fetch("/api/products?limit=1")
+    // Fetch live categories and brands
+    fetch("/api/content/categories")
       .then((res) => res.json())
       .then((data) => {
-        if (data.products?.[0]?.category) {
-          // Pre-populate category
+        if (data.categories && data.categories.length > 0) {
+          setCategories(data.categories);
+          setCategoryId(data.categories[0].id);
         }
-      });
+        if (data.brands && data.brands.length > 0) {
+          setBrands(data.brands);
+        }
+      })
+      .catch((err) => console.warn("Categories fetch error:", err));
   }, []);
 
   const handleAddImage = () => {
@@ -75,7 +83,8 @@ export default function AdminNewProductPage() {
       const payload = {
         name,
         sku,
-        categoryId: categoryId || "sneakers", // fallback or default
+        categoryId: categoryId || undefined,
+        brandId: brandId || undefined,
         price: Number(price),
         salePrice: salePrice ? Number(salePrice) : null,
         description,
@@ -107,12 +116,12 @@ export default function AdminNewProductPage() {
       } else {
         toast({
           title: "Error publishing product",
-          description: data.error,
+          description: data.error || "Failed to create product.",
           type: "error",
         });
       }
-    } catch (err) {
-      toast({ title: "Network error", type: "error" });
+    } catch (err: any) {
+      toast({ title: "Network error", description: err.message, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -174,23 +183,52 @@ export default function AdminNewProductPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              Category
-            </label>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
-            >
-              <option value="">Select Category (Defaults to Sneakers)</option>
-              <option value="sneakers">Sneakers</option>
-              <option value="running">Running</option>
-              <option value="basketball">Basketball</option>
-              <option value="casual">Casual & Loafers</option>
-              <option value="boots">Boots</option>
-              <option value="training">Training & Gym</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Category
+              </label>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
+              >
+                {categories.length > 0 ? (
+                  categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="sneakers">Sneakers (Default)</option>
+                    <option value="running">Running</option>
+                    <option value="basketball">Basketball</option>
+                    <option value="casual">Casual & Loafers</option>
+                    <option value="boots">Boots</option>
+                    <option value="training">Training & Gym</option>
+                  </>
+                )}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Brand (Optional)
+              </label>
+              <select
+                value={brandId}
+                onChange={(e) => setBrandId(e.target.value)}
+                className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
+              >
+                <option value="">No specific brand / House Collection</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
