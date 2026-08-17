@@ -23,6 +23,8 @@ export interface HeroSlideData {
   subtitle: string | null;
   badge: string | null;
   imageUrl: string;
+  videoUrl?: string | null;
+  mediaType?: string | null; // "image" | "video"
   ctaText: string | null;
   ctaLink: string | null;
 }
@@ -52,13 +54,13 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
 
   const hasCustomSlides = slides && slides.length > 0;
 
-  // Autoplay timer (5.5s) with pause on hover
+  // Autoplay timer (6.5s) with pause on hover
   useEffect(() => {
     if (!hasCustomSlides || slides.length <= 1 || isPaused) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 5500);
+    }, 6500);
 
     return () => clearInterval(timer);
   }, [hasCustomSlides, slides.length, isPaused]);
@@ -89,7 +91,6 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
     touchEndX.current = null;
   };
 
-  // If no database-configured custom slides, fallback cleanly to existing cinematic shoe background
   // If no database-configured custom slides, fallback cleanly to existing cinematic shoe background
   if (!hasCustomSlides) {
     return (
@@ -132,6 +133,7 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
   }
 
   const currentSlide = slides[currentIndex];
+  const isVideoSlide = (currentSlide.mediaType === "video" || !!currentSlide.videoUrl) && !!currentSlide.videoUrl;
 
   return (
     <section
@@ -153,14 +155,28 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <Image
-              src={currentSlide.imageUrl}
-              alt={currentSlide.heading}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-bottom sm:object-center"
-            />
+            {isVideoSlide ? (
+              <video
+                key={currentSlide.videoUrl || ""}
+                src={currentSlide.videoUrl || ""}
+                poster={currentSlide.imageUrl || undefined}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover object-center"
+              />
+            ) : (
+              <Image
+                src={currentSlide.imageUrl}
+                alt={currentSlide.heading}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-bottom sm:object-center"
+              />
+            )}
             {/* Cinematic High-Contrast Gradient Layering */}
             <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 md:via-zinc-950/60 lg:via-zinc-950/40 to-transparent pointer-events-none" />
             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-zinc-950 to-transparent pointer-events-none" />

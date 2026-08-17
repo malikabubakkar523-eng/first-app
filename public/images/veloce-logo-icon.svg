@@ -1,21 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="icon-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#18181b" />
-      <stop offset="100%" stop-color="#09090b" />
-    </linearGradient>
-    <linearGradient id="icon-v" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" />
-      <stop offset="100%" stop-color="#f43f5e" />
+    <linearGradient id="sole-grad-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#fb7185" />
     </linearGradient>
   </defs>
-  <rect width="100" height="100" rx="24" fill="url(#icon-bg)" stroke="#27272a" stroke-width="2" />
-  <path 
-    d="M26 24 L43 24 L54 62 L65 24 L82 24 L63 76 L45 76 Z" 
-    fill="url(#icon-v)" 
-    stroke="#09090b"
-    stroke-width="1.5"
-    stroke-linejoin="round"
-  />
-  <circle cx="78" cy="74" r="5" fill="#f43f5e" />
+  <!-- Shoe Tread Sole Emblem (Vectorized Brand Icon) -->
+  <g transform="translate(50, 50) rotate(-35) translate(-36, -48)">
+    <!-- Heel Loop -->
+    <path 
+      d="M18,72 C18,84 32,94 44,94 C56,94 62,84 62,72 C62,64 56,58 50,54 C46,52 42,50 38,46 C34,42 32,38 30,32 C26,24 30,12 40,8 C46,6 52,8 56,12" 
+      stroke="currentColor" 
+      stroke-width="5" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    />
+    <!-- Outsole Perimeter Contour -->
+    <path 
+      d="M20,70 C16,56 18,36 28,20 C34,10 44,4 54,6 C62,8 68,16 68,28 C68,44 60,56 58,68 C56,80 50,92 38,92 C26,92 20,82 20,70 Z" 
+      stroke="currentColor" 
+      stroke-width="5.5" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    />
+    <!-- Flex Grooves & Chevron Traction Plates -->
+    <path 
+      d="M32,24 L60,28 M30,36 L58,42 M28,48 L52,56 M36,66 L52,72 M34,78 L48,82" 
+      stroke="currentColor" 
+      stroke-width="4.5" 
+      stroke-linecap="round"
+    />
+    <!-- Inner Core Propulsion Bridge -->
+    <path 
+      d="M44,20 L38,50 L46,74" 
+      stroke="url(#sole-grad-glow)" 
+      stroke-width="4.5" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    />
+  </g>
 </svg>

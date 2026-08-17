@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_MIME_TYPES = new Set([
+const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
   "image/png",
@@ -16,7 +16,18 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/svg+xml",
 ]);
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_VIDEO_TYPES = new Set([
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  "video/quicktime",
+  "video/x-matroska",
+  "video/mp2t",
+  "video/3gpp",
+]);
+
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
+const MAX_VIDEO_SIZE = 60 * 1024 * 1024; // 60 MB
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,24 +43,29 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No image file provided." }, { status: 400 });
+      return NextResponse.json({ error: "No media file provided." }, { status: 400 });
     }
 
+    const mime = file.type.toLowerCase();
+    const isImage = ALLOWED_IMAGE_TYPES.has(mime);
+    const isVideo = ALLOWED_VIDEO_TYPES.has(mime) || file.name.match(/\.(mp4|webm|mov|ogg|mkv)$/i);
+
     // Validate MIME type
-    if (!ALLOWED_MIME_TYPES.has(file.type.toLowerCase())) {
+    if (!isImage && !isVideo) {
       return NextResponse.json(
         {
           error:
-            "Invalid file format. Only JPEG, PNG, WebP, AVIF, GIF, and SVG images are supported.",
+            "Invalid file format. Supported formats: Images (JPEG, PNG, WebP, AVIF, GIF, SVG) and Videos (MP4, WebM, QuickTime MOV, OGG).",
         },
         { status: 400 }
       );
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    const limit = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    if (file.size > limit) {
       return NextResponse.json(
-        { error: "File size exceeds the 5MB maximum limit." },
+        { error: `File size exceeds the ${isVideo ? "60MB" : "15MB"} limit.` },
         { status: 400 }
       );
     }

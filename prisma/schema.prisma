@@ -360,6 +360,8 @@ model HeroBanner {
   subtitle  String?
   badge     String?  @default("SPRING / SUMMER 2026 ARCHIVE")
   imageUrl  String
+  videoUrl  String?
+  mediaType String?  @default("image")
   ctaText   String?  @default("SHOP THE COLLECTION")
   ctaLink   String?  @default("/shop")
   order     Int      @default(0)

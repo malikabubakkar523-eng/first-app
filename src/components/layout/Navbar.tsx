@@ -92,14 +92,14 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
         <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 flex items-center justify-between w-full">
           {/* Left: Brand Logo */}
           <Link href="/" className="flex items-center gap-1.5 group shrink-0" aria-label="VELOCE Home">
-            <div className="relative h-6 sm:h-8 w-24 xs:w-28 sm:w-36 flex items-center transition-transform group-hover:scale-105">
+            <div className="relative h-7 xs:h-8 sm:h-9 w-28 xs:w-32 sm:w-40 flex items-center transition-transform group-hover:scale-105">
               {/* Dark mode logo */}
               <Image
                 src="/images/veloce-logo.svg"
                 alt="VELOCE"
                 fill
                 priority
-                sizes="(max-width: 640px) 112px, 144px"
+                sizes="(max-width: 640px) 128px, 160px"
                 className="object-contain object-left hidden dark:block"
               />
               {/* Light mode logo */}
@@ -108,12 +108,10 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
                 alt="VELOCE"
                 fill
                 priority
-                sizes="(max-width: 640px) 112px, 144px"
+                sizes="(max-width: 640px) 128px, 160px"
                 className="object-contain object-left block dark:hidden"
               />
             </div>
-            {/* Brand Dot */}
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 hidden xs:inline-block" />
           </Link>
 
           {/* Center (Desktop Only): Nav Links */}

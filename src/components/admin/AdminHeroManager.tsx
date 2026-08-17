@@ -8,6 +8,8 @@ import {
   Trash2,
   Edit3,
   Image as ImageIcon,
+  Video,
+  Film,
   Sparkles,
   ExternalLink,
   X,
@@ -22,6 +24,7 @@ import {
   Loader2,
   Layers,
   ArrowRight,
+  Play,
 } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 
@@ -31,6 +34,8 @@ export interface HeroBannerType {
   subtitle: string | null;
   badge: string | null;
   imageUrl: string;
+  videoUrl?: string | null;
+  mediaType?: string | null; // "image" | "video"
   ctaText: string | null;
   ctaLink: string | null;
   order: number;
@@ -45,8 +50,10 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
   const [previewBanner, setPreviewBanner] = useState<HeroBannerType | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<HeroBannerType | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const [replacingItemId, setReplacingItemId] = useState<string | null>(null);
 
@@ -57,6 +64,8 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
     subtitle: "",
     badge: "SPRING / SUMMER 2026 ARCHIVE",
     imageUrl: "",
+    videoUrl: "",
+    mediaType: "image" as "image" | "video",
     ctaText: "SHOP THE COLLECTION",
     ctaLink: "/shop",
     order: 0,
@@ -70,6 +79,8 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
       subtitle: "",
       badge: "SPRING / SUMMER 2026 ARCHIVE",
       imageUrl: "",
+      videoUrl: "",
+      mediaType: "image",
       ctaText: "SHOP THE COLLECTION",
       ctaLink: "/shop",
       order: banners.length + 1,
@@ -85,6 +96,8 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
       subtitle: banner.subtitle || "",
       badge: banner.badge || "SPRING / SUMMER 2026 ARCHIVE",
       imageUrl: banner.imageUrl,
+      videoUrl: banner.videoUrl || "",
+      mediaType: (banner.mediaType === "video" || !!banner.videoUrl) ? "video" : "image",
       ctaText: banner.ctaText || "SHOP THE COLLECTION",
       ctaLink: banner.ctaLink || "/shop",
       order: banner.order,
@@ -95,16 +108,21 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    target: "form" | "replace",
+    target: "form-image" | "form-video" | "replace",
     itemId?: string
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    const isVideo = file.type.startsWith("video/") || file.name.match(/\.(mp4|webm|mov|ogg|mkv)$/i);
+    const maxSize = isVideo ? 60 * 1024 * 1024 : 15 * 1024 * 1024;
+
+    if (file.size > maxSize) {
       toast({
         title: "File Too Large",
-        description: "Image size must be under 5MB for optimal speed.",
+        description: isVideo
+          ? "Video size must be under 60MB."
+          : "Image size must be under 15MB for optimal speed.",
         type: "error",
       });
       return;
@@ -113,7 +131,12 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
     const formData = new FormData();
     formData.append("file", file);
 
-    setUploading(true);
+    if (target === "form-video") {
+      setUploadingVideo(true);
+    } else {
+      setUploading(true);
+    }
+
     try {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
@@ -122,11 +145,18 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
       const data = await res.json();
 
       if (res.ok && data.success) {
-        if (target === "form") {
+        if (target === "form-image") {
           setForm((prev) => ({ ...prev, imageUrl: data.url }));
           toast({
-            title: "Hero Image Uploaded",
-            description: "File uploaded and optimized successfully.",
+            title: "Image Uploaded",
+            description: "File uploaded and ready.",
+            type: "success",
+          });
+        } else if (target === "form-video") {
+          setForm((prev) => ({ ...prev, videoUrl: data.url, mediaType: "video" }));
+          toast({
+            title: "Background Video Uploaded",
+            description: "Video file processed and ready for hero playback.",
             type: "success",
           });
         } else if (target === "replace" && itemId) {
@@ -140,8 +170,8 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
               prev.map((b) => (b.id === itemId ? { ...b, imageUrl: data.url } : b))
             );
             toast({
-              title: "Hero Image Replaced",
-              description: "New hero image is now live.",
+              title: "Hero Media Replaced",
+              description: "New hero visual is now live.",
               type: "success",
             });
           }
@@ -149,7 +179,7 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
       } else {
         toast({
           title: "Upload Failed",
-          description: data.error || "Could not upload hero image.",
+          description: data.error || "Could not upload media file.",
           type: "error",
         });
       }
@@ -161,17 +191,38 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
       });
     } finally {
       setUploading(false);
+      setUploadingVideo(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      if (videoInputRef.current) videoInputRef.current.value = "";
       if (replaceInputRef.current) replaceInputRef.current.value = "";
     }
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.heading || !form.imageUrl) {
+
+    if (!form.heading) {
       toast({
         title: "Validation Error",
-        description: "Heading and Hero Image are required.",
+        description: "Hero slide heading is required.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (form.mediaType === "image" && !form.imageUrl) {
+      toast({
+        title: "Validation Error",
+        description: "Please provide an image for image slides.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (form.mediaType === "video" && !form.videoUrl) {
+      toast({
+        title: "Validation Error",
+        description: "Please upload or provide a video URL for video slides.",
         type: "error",
       });
       return;
@@ -179,17 +230,22 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        imageUrl: form.imageUrl || "/images/shop-banner.png",
+      };
+
       if (editingBanner) {
         // PATCH
         const res = await fetch(`/api/admin/hero/${editingBanner.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         });
         const data = await res.json();
         if (res.ok && data.success) {
           setBanners(
-            banners.map((b) => (b.id === editingBanner.id ? { ...b, ...form } : b))
+            banners.map((b) => (b.id === editingBanner.id ? { ...b, ...payload } : b))
           );
           toast({
             title: "Success",
@@ -209,7 +265,7 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
         const res = await fetch("/api/admin/hero", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         });
         const data = await res.json();
         if (res.ok && data.success) {
@@ -253,260 +309,271 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
         );
         toast({
           title: newStatus ? "Hero Slide Enabled" : "Hero Slide Disabled",
-          description: newStatus ? "Visible on homepage slider." : "Hidden from homepage slider.",
+          description: `Slide is now ${newStatus ? "visible on" : "hidden from"} homepage.`,
           type: "info",
         });
       }
     } catch (e) {
-      toast({ title: "Error updating status", type: "error" });
+      toast({ title: "Error", description: "Failed to update status.", type: "error" });
     }
   };
 
   const handleMoveOrder = async (banner: HeroBannerType, direction: "up" | "down") => {
-    const index = banners.findIndex((b) => b.id === banner.id);
-    if (direction === "up" && index === 0) return;
-    if (direction === "down" && index === banners.length - 1) return;
-
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    const swapItem = banners[targetIndex];
+    const currentIndex = banners.findIndex((b) => b.id === banner.id);
+    if (currentIndex === -1) return;
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= banners.length) return;
 
     const newBanners = [...banners];
-    const tempOrder = banner.order;
-    banner.order = swapItem.order;
-    swapItem.order = tempOrder;
-    newBanners[index] = swapItem;
+    const swapItem = newBanners[targetIndex];
+    newBanners[currentIndex] = swapItem;
     newBanners[targetIndex] = banner;
 
-    setBanners(newBanners);
+    // Recalculate orders
+    const updatedWithOrders = newBanners.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setBanners(updatedWithOrders);
 
     try {
       await Promise.all([
         fetch(`/api/admin/hero/${banner.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ order: banner.order }),
+          body: JSON.stringify({ order: targetIndex + 1 }),
         }),
         fetch(`/api/admin/hero/${swapItem.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ order: swapItem.order }),
+          body: JSON.stringify({ order: currentIndex + 1 }),
         }),
       ]);
-      toast({ title: "Order Updated", type: "success" });
-    } catch (e) {
-      toast({ title: "Failed to save reorder", type: "error" });
+      toast({ title: "Order Updated", description: "Hero slide positions synced.", type: "info" });
+    } catch (err) {
+      toast({ title: "Error", description: "Could not save reordering.", type: "error" });
     }
   };
 
   const confirmDelete = async () => {
     if (!deleteConfirmItem) return;
-    const id = deleteConfirmItem.id;
+    const { id } = deleteConfirmItem;
     try {
       const res = await fetch(`/api/admin/hero/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      if (res.ok) {
         setBanners(banners.filter((b) => b.id !== id));
         toast({
           title: "Deleted",
           description: "Hero slide removed.",
-          type: "info",
+          type: "success",
         });
+        setDeleteConfirmItem(null);
       } else {
-        toast({
-          title: "Delete Failed",
-          description: data.error || "Could not delete.",
-          type: "error",
-        });
+        toast({ title: "Delete Failed", description: "Could not remove slide.", type: "error" });
       }
-    } catch (err) {
+    } catch (e) {
       toast({ title: "Error", description: "Network error.", type: "error" });
-    } finally {
-      setDeleteConfirmItem(null);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Hidden File Input for Card Replacement */}
+    <div className="space-y-8">
+      {/* Top Banner Control Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-zinc-900 border border-zinc-800 shadow-sm">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulse" />
+            <h2 className="text-base font-bold text-white tracking-wide">
+              Homepage Hero & Background Video Carousel
+            </h2>
+          </div>
+          <p className="text-xs text-zinc-400">
+            Control the hero banners and background videos displayed at the top of the storefront.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-semibold transition-colors"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>View Live Site</span>
+          </Link>
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-lg shadow-brand-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Hero Slide (Image / Video)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Hidden File Input for in-place Image Replace */}
       <input
         type="file"
         ref={replaceInputRef}
         className="hidden"
-        accept="image/jpeg,image/png,image/webp,image/avif"
+        accept="image/*"
         onChange={(e) => handleFileUpload(e, "replace", replacingItemId || undefined)}
       />
 
-      {/* Control Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-900 border border-zinc-800">
-        <div>
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Layers className="w-4 h-4 text-brand-500" />
-            <span>Homepage Hero Slides ({banners.length})</span>
-          </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Active slides will be automatically rendered in the luxury homepage hero slider.
-          </p>
-        </div>
+      {/* Banners List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {banners.map((banner, index) => {
+          const isVideo = (banner.mediaType === "video" || !!banner.videoUrl) && !!banner.videoUrl;
 
-        <button
-          onClick={openAddModal}
-          className="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-md shadow-brand-500/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02] cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ Add Hero Slide</span>
-        </button>
-      </div>
+          return (
+            <div
+              key={banner.id}
+              className={`rounded-3xl border transition-all duration-300 overflow-hidden bg-zinc-950 flex flex-col justify-between ${
+                banner.isActive
+                  ? "border-zinc-800 hover:border-zinc-700 shadow-md"
+                  : "border-zinc-800/40 opacity-60 bg-zinc-950/40"
+              }`}
+            >
+              {/* Visual Banner Preview Thumbnail */}
+              <div className="relative aspect-[16/9] w-full bg-zinc-900 overflow-hidden group">
+                {isVideo ? (
+                  <video
+                    src={banner.videoUrl || ""}
+                    poster={banner.imageUrl || undefined}
+                    muted
+                    loop
+                    playsInline
+                    autoPlay
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={banner.imageUrl || "/images/shop-banner.png"}
+                    alt={banner.heading}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
 
-      {/* Hero Banners Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {banners.map((banner, index) => (
-          <div
-            key={banner.id}
-            className={`group rounded-3xl bg-zinc-900 border transition-all overflow-hidden flex flex-col justify-between ${
-              banner.isActive
-                ? "border-zinc-800 hover:border-zinc-700 shadow-xl"
-                : "border-zinc-800/50 opacity-60 bg-zinc-950"
-            }`}
-          >
-            {/* Banner Preview Visual */}
-            <div className="relative aspect-[16/9] bg-zinc-950 overflow-hidden">
-              <Image
-                src={banner.imageUrl}
-                alt={banner.heading}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
+                {/* Dark Gradient Overlay for preview readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent pointer-events-none" />
 
-              {/* Ambient Vignette & Text Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent opacity-90" />
-
-              {/* Top Badges */}
-              <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
-                <span
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border ${
-                    banner.isActive
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                      : "bg-zinc-800/80 text-zinc-400 border-zinc-700"
-                  }`}
-                >
-                  {banner.isActive ? "Active on Homepage" : "Disabled / Inactive"}
-                </span>
-
-                <span className="px-2.5 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] font-mono border border-zinc-800">
-                  Slide #{banner.order}
-                </span>
-              </div>
-
-              {/* In-Image Typography Preview */}
-              <div className="absolute inset-x-0 bottom-0 p-6 z-10 space-y-1.5 text-white">
-                {banner.badge && (
-                  <span className="inline-block text-[10px] font-mono font-bold tracking-widest text-brand-400 uppercase">
-                    {banner.badge}
+                {/* Slide Status & Media Badges */}
+                <div className="absolute top-3.5 left-3.5 flex items-center gap-2 z-10">
+                  <span className="px-2.5 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-[10px] font-bold text-white font-mono border border-zinc-800">
+                    Slide #{index + 1}
                   </span>
-                )}
-                <h3 className="text-xl font-display font-black tracking-tight line-clamp-1">
-                  {banner.heading}
-                </h3>
-                {banner.subtitle && (
-                  <p className="text-xs text-zinc-300 line-clamp-1 leading-relaxed">
-                    {banner.subtitle}
-                  </p>
-                )}
-              </div>
-
-              {/* Quick Hover Controls */}
-              <div className="absolute inset-0 bg-zinc-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5 z-20">
-                <button
-                  onClick={() => setPreviewBanner(banner)}
-                  title="Full preview"
-                  className="px-3.5 py-2 rounded-xl bg-white text-zinc-950 hover:bg-brand-500 hover:text-white transition-colors text-xs font-bold flex items-center gap-1.5 shadow-xl"
-                >
-                  <Eye className="w-4 h-4" />
-                  <span>Preview</span>
-                </button>
-
-                <button
-                  onClick={() => openEditModal(banner)}
-                  title="Edit slide"
-                  className="p-2.5 rounded-xl bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-lg"
-                >
-                  <Edit3 className="w-4 h-4" />
-                </button>
-
-                <button
-                  onClick={() => {
-                    setReplacingItemId(banner.id);
-                    replaceInputRef.current?.click();
-                  }}
-                  title="Replace image"
-                  className="p-2.5 rounded-xl bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-lg"
-                >
-                  <Upload className="w-4 h-4" />
-                </button>
-
-                <button
-                  onClick={() => setDeleteConfirmItem(banner)}
-                  title="Delete slide"
-                  className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition-colors shadow-lg"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Slide Metadata & Action Bar */}
-            <div className="p-4 space-y-3 bg-zinc-900">
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <div>
-                  <span className="font-mono text-zinc-500 text-[11px]">CTA: </span>
-                  <span className="font-bold text-white">{banner.ctaText || "None"}</span>
-                </div>
-                <div className="font-mono text-[11px] text-zinc-500 truncate max-w-[160px]">
-                  Link: {banner.ctaLink || "/shop"}
-                </div>
-              </div>
-
-              {/* Bottom Row: Toggle & Reorder Buttons */}
-              <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-2">
-                <button
-                  onClick={() => handleToggleActive(banner)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors ${
-                    banner.isActive
-                      ? "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
-                      : "text-zinc-400 bg-zinc-800 hover:bg-zinc-700"
-                  }`}
-                >
-                  {banner.isActive ? (
-                    <ToggleRight className="w-4 h-4 text-emerald-400" />
+                  {isVideo ? (
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 backdrop-blur-md text-[10px] font-bold">
+                      <Film className="w-3 h-3" />
+                      <span>VIDEO</span>
+                    </span>
                   ) : (
-                    <ToggleLeft className="w-4 h-4 text-zinc-500" />
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-md text-[10px] font-bold">
+                      <ImageIcon className="w-3 h-3" />
+                      <span>IMAGE</span>
+                    </span>
                   )}
-                  <span>{banner.isActive ? "Active on Homepage" : "Disabled"}</span>
-                </button>
+                  {banner.isActive ? (
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-md text-[10px] font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      Active
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 text-[10px] font-semibold">
+                      Disabled
+                    </span>
+                  )}
+                </div>
 
-                <div className="flex items-center gap-1">
+                {/* Heading & Subtitle preview */}
+                <div className="absolute bottom-3 left-4 right-4 z-10 space-y-1 text-left">
+                  {banner.badge && (
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest text-brand-400">
+                      {banner.badge}
+                    </span>
+                  )}
+                  <h4 className="text-sm sm:text-base font-bold text-white line-clamp-1">
+                    {banner.heading}
+                  </h4>
+                </div>
+
+                {/* Hover Quick Actions */}
+                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5 z-20">
                   <button
-                    onClick={() => handleMoveOrder(banner, "up")}
-                    disabled={index === 0}
-                    className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 disabled:opacity-30"
-                    title="Move slide earlier"
+                    onClick={() => setPreviewBanner(banner)}
+                    title="Live Homepage Simulation"
+                    className="p-2.5 rounded-xl bg-white text-zinc-950 hover:bg-brand-500 hover:text-white transition-colors shadow-lg"
                   >
-                    <ArrowUp className="w-4 h-4" />
+                    <Eye className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleMoveOrder(banner, "down")}
-                    disabled={index === banners.length - 1}
-                    className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 disabled:opacity-30"
-                    title="Move slide later"
+                    onClick={() => openEditModal(banner)}
+                    title="Edit Slide Details"
+                    className="p-2.5 rounded-xl bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-lg"
                   >
-                    <ArrowDown className="w-4 h-4" />
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmItem(banner)}
+                    title="Delete slide"
+                    className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition-colors shadow-lg"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
+
+              {/* Slide Metadata & Action Bar */}
+              <div className="p-4 space-y-3 bg-zinc-900">
+                <div className="flex items-center justify-between text-xs text-zinc-400">
+                  <div>
+                    <span className="font-mono text-zinc-500 text-[11px]">CTA: </span>
+                    <span className="font-bold text-white">{banner.ctaText || "None"}</span>
+                  </div>
+                  <div className="font-mono text-[11px] text-zinc-500 truncate max-w-[160px]">
+                    Link: {banner.ctaLink || "/shop"}
+                  </div>
+                </div>
+
+                {/* Bottom Row: Toggle & Reorder Buttons */}
+                <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => handleToggleActive(banner)}
+                    className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors ${
+                      banner.isActive
+                        ? "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
+                        : "text-zinc-400 bg-zinc-800 hover:bg-zinc-700"
+                    }`}
+                  >
+                    {banner.isActive ? (
+                      <ToggleRight className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <ToggleLeft className="w-4 h-4 text-zinc-500" />
+                    )}
+                    <span>{banner.isActive ? "Active on Homepage" : "Disabled"}</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleMoveOrder(banner, "up")}
+                      disabled={index === 0}
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 disabled:opacity-30"
+                      title="Move slide earlier"
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleMoveOrder(banner, "down")}
+                      disabled={index === banners.length - 1}
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 disabled:opacity-30"
+                      title="Move slide later"
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {banners.length === 0 && (
@@ -514,7 +581,7 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
           <Layers className="w-10 h-10 text-zinc-600 mx-auto" />
           <p className="text-sm font-bold text-white">No custom hero slides configured</p>
           <p className="text-xs text-zinc-400">
-            The homepage will use default high-performance fallback shoes until you add custom slides.
+            The homepage will use default high-performance fallback shoes until you add custom slides or background videos.
           </p>
         </div>
       )}
@@ -529,7 +596,7 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
                   {editingBanner ? "Edit Hero Banner Slide" : "Add New Hero Banner Slide"}
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  Configure imagery, typography, and call-to-action buttons for the homepage hero.
+                  Configure background visual (Image or Video), typography, and CTA button.
                 </p>
               </div>
               <button
@@ -540,57 +607,88 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
               </button>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-4">
-              {/* Image Upload Area */}
+            <form onSubmit={handleSave} className="space-y-5">
+              {/* Media Type Selector (Image vs Video) */}
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Hero Image Visual *
+                <label className="block text-xs font-semibold text-zinc-300 mb-2">
+                  Hero Background Media Type *
                 </label>
+                <div className="grid grid-cols-2 gap-3 p-1.5 bg-zinc-950 rounded-2xl border border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, mediaType: "image" }))}
+                    className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      form.mediaType === "image"
+                        ? "bg-brand-500 text-white shadow-md shadow-brand-500/20"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                    }`}
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    <span>Image Background</span>
+                  </button>
 
-                <div className="space-y-3">
-                  {form.imageUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, mediaType: "video" }))}
+                    className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      form.mediaType === "video"
+                        ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                    }`}
+                  >
+                    <Film className="w-4 h-4" />
+                    <span>Video Background (MP4 / WebM)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Video Media Controls */}
+              {form.mediaType === "video" ? (
+                <div className="space-y-3 p-4 rounded-2xl bg-zinc-950/60 border border-purple-500/20">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-purple-300">
+                      Background Video Source *
+                    </label>
+                    <span className="text-[10px] text-zinc-500">MP4, WebM, QuickTime up to 60MB</span>
+                  </div>
+
+                  {form.videoUrl ? (
                     <div className="relative aspect-video rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden group">
-                      <Image
-                        src={form.imageUrl}
-                        alt="Hero Preview"
-                        fill
-                        className="object-cover"
+                      <video
+                        src={form.videoUrl}
+                        controls
+                        muted
+                        loop
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-zinc-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <div className="absolute top-2 right-2 flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="px-4 py-2 rounded-xl bg-white text-zinc-950 text-xs font-bold hover:bg-brand-500 hover:text-white transition-colors"
+                          onClick={() => setForm((prev) => ({ ...prev, videoUrl: "" }))}
+                          className="px-3 py-1.5 rounded-lg bg-rose-500/80 text-white text-[10px] font-bold hover:bg-rose-600 transition-colors shadow-lg"
                         >
-                          Change Image
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setForm((prev) => ({ ...prev, imageUrl: "" }))}
-                          className="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 text-xs font-bold hover:bg-rose-500 hover:text-white transition-colors"
-                        >
-                          Remove
+                          Remove Video
                         </button>
                       </div>
                     </div>
                   ) : (
                     <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-zinc-800 hover:border-brand-500/60 rounded-2xl p-6 text-center cursor-pointer transition-colors space-y-2 bg-zinc-950/50"
+                      onClick={() => videoInputRef.current?.click()}
+                      className="border-2 border-dashed border-purple-500/30 hover:border-purple-500/80 rounded-2xl p-6 text-center cursor-pointer transition-colors space-y-2 bg-purple-500/5"
                     >
-                      {uploading ? (
+                      {uploadingVideo ? (
                         <div className="flex flex-col items-center justify-center gap-2 py-4">
-                          <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
-                          <p className="text-xs font-bold text-zinc-300">Uploading & Optimizing Hero...</p>
+                          <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+                          <p className="text-xs font-bold text-zinc-300">Uploading Video...</p>
                         </div>
                       ) : (
                         <>
-                          <div className="w-10 h-10 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center mx-auto">
-                            <Upload className="w-5 h-5" />
+                          <div className="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center mx-auto">
+                            <Video className="w-5 h-5" />
                           </div>
-                          <p className="text-xs font-bold text-white">Click to upload hero image</p>
+                          <p className="text-xs font-bold text-white">Click to upload background video file</p>
                           <p className="text-[10px] text-zinc-500">
-                            Recommended: 1920x1080 or high-res WebP/PNG under 5MB
+                            Supports direct .mp4, .webm, .mov files
                           </p>
                         </>
                       )}
@@ -599,23 +697,123 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
                   <input
                     type="file"
-                    ref={fileInputRef}
+                    ref={videoInputRef}
                     className="hidden"
-                    accept="image/jpeg,image/png,image/webp,image/avif"
-                    onChange={(e) => handleFileUpload(e, "form")}
+                    accept="video/mp4,video/webm,video/ogg,video/quicktime,video/*"
+                    onChange={(e) => handleFileUpload(e, "form-video")}
                   />
 
-                  <div className="flex items-center gap-2">
+                  <div className="pt-1">
                     <input
                       type="url"
-                      value={form.imageUrl}
-                      onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
-                      placeholder="Or paste direct hero image URL (https://...)"
-                      className="flex-1 px-4 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={form.videoUrl}
+                      onChange={(e) => setForm((prev) => ({ ...prev, videoUrl: e.target.value }))}
+                      placeholder="Or paste direct video stream / CDN URL (https://...mp4)"
+                      className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                     />
                   </div>
+
+                  {/* Optional Poster Image for Video */}
+                  <div className="pt-2 border-t border-zinc-800/80">
+                    <label className="block text-[11px] font-semibold text-zinc-400 mb-1">
+                      Fallback Poster Image (Optional, for instant mobile loading)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={form.imageUrl}
+                        onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
+                        placeholder="Poster image URL (e.g. /images/shop-banner.png)"
+                        className="flex-1 px-3 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold shrink-0"
+                      >
+                        Upload Poster
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* Image Upload Area */
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                    Hero Image Visual *
+                  </label>
+
+                  <div className="space-y-3">
+                    {form.imageUrl ? (
+                      <div className="relative aspect-video rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden group">
+                        <Image
+                          src={form.imageUrl}
+                          alt="Hero Preview"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-zinc-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-4 py-2 rounded-xl bg-white text-zinc-950 text-xs font-bold hover:bg-brand-500 hover:text-white transition-colors"
+                          >
+                            Change Image
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setForm((prev) => ({ ...prev, imageUrl: "" }))}
+                            className="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 text-xs font-bold hover:bg-rose-500 hover:text-white transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-zinc-800 hover:border-brand-500/60 rounded-2xl p-6 text-center cursor-pointer transition-colors space-y-2 bg-zinc-950/50"
+                      >
+                        {uploading ? (
+                          <div className="flex flex-col items-center justify-center gap-2 py-4">
+                            <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
+                            <p className="text-xs font-bold text-zinc-300">Uploading Image...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="w-10 h-10 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center mx-auto">
+                              <Upload className="w-5 h-5" />
+                            </div>
+                            <p className="text-xs font-bold text-white">Click to upload hero image</p>
+                            <p className="text-[10px] text-zinc-500">
+                              Recommended: 1920x1080 WebP/PNG/JPEG under 15MB
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={form.imageUrl}
+                        onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
+                        placeholder="Or paste direct hero image URL (https://...)"
+                        className="flex-1 px-4 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Hidden file input for image upload */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={(e) => handleFileUpload(e, "form-image")}
+              />
 
               {/* Badge & Heading */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -729,10 +927,10 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
                 </button>
                 <button
                   type="submit"
-                  disabled={saving || uploading}
+                  disabled={saving || uploading || uploadingVideo}
                   className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-md shadow-brand-500/20 disabled:opacity-50 flex items-center gap-2"
                 >
-                  {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {(saving || uploading || uploadingVideo) && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingBanner ? "Save Slide" : "Launch Hero Slide"}</span>
                 </button>
               </div>
@@ -754,12 +952,25 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
             {/* Simulating Homepage Hero Render */}
             <div className="relative min-h-[460px] sm:min-h-[540px] flex items-center p-8 sm:p-14 overflow-hidden">
-              <Image
-                src={previewBanner.imageUrl}
-                alt={previewBanner.heading}
-                fill
-                className="object-cover pointer-events-none"
-              />
+              {((previewBanner.mediaType === "video" || !!previewBanner.videoUrl) && !!previewBanner.videoUrl) ? (
+                <video
+                  src={previewBanner.videoUrl || ""}
+                  poster={previewBanner.imageUrl || undefined}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                />
+              ) : (
+                <Image
+                  src={previewBanner.imageUrl || "/images/shop-banner.png"}
+                  alt={previewBanner.heading}
+                  fill
+                  className="object-cover pointer-events-none"
+                />
+              )}
+
               <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent pointer-events-none" />
 
               <div className="relative z-10 max-w-xl space-y-4">

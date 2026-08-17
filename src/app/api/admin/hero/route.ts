@@ -31,11 +31,28 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { heading, subtitle, badge, imageUrl, ctaText, ctaLink, order, isActive } = body;
+    const { heading, subtitle, badge, imageUrl, videoUrl, mediaType, ctaText, ctaLink, order, isActive } = body;
 
-    if (!heading || !imageUrl) {
+    const chosenMediaType = mediaType === "video" ? "video" : "image";
+    const finalImageUrl = imageUrl || (chosenMediaType === "video" ? "/images/shop-banner.png" : "");
+
+    if (!heading) {
       return NextResponse.json(
-        { error: "Heading and Hero Image URL are required." },
+        { error: "Slide Heading is required." },
+        { status: 400 }
+      );
+    }
+
+    if (chosenMediaType === "image" && !finalImageUrl) {
+      return NextResponse.json(
+        { error: "Background Image URL is required for Image slides." },
+        { status: 400 }
+      );
+    }
+
+    if (chosenMediaType === "video" && !videoUrl) {
+      return NextResponse.json(
+        { error: "Background Video URL or Upload is required for Video slides." },
         { status: 400 }
       );
     }
@@ -45,7 +62,9 @@ export async function POST(req: NextRequest) {
         heading,
         subtitle: subtitle || null,
         badge: badge || "SPRING / SUMMER 2026 ARCHIVE",
-        imageUrl,
+        imageUrl: finalImageUrl,
+        videoUrl: videoUrl || null,
+        mediaType: chosenMediaType,
         ctaText: ctaText || "SHOP THE COLLECTION",
         ctaLink: ctaLink || "/shop",
         order: Number(order) || 0,

@@ -14,7 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const { id } = params;
     const body = await req.json();
-    const { heading, subtitle, badge, imageUrl, ctaText, ctaLink, order, isActive } = body;
+    const { heading, subtitle, badge, imageUrl, videoUrl, mediaType, ctaText, ctaLink, order, isActive } = body;
 
     const updated = await db.heroBanner.update({
       where: { id },
@@ -23,6 +23,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(subtitle !== undefined && { subtitle }),
         ...(badge !== undefined && { badge }),
         ...(imageUrl !== undefined && { imageUrl }),
+        ...(videoUrl !== undefined && { videoUrl }),
+        ...(mediaType !== undefined && { mediaType }),
         ...(ctaText !== undefined && { ctaText }),
         ...(ctaLink !== undefined && { ctaLink }),
         ...(order !== undefined && { order: Number(order) }),
