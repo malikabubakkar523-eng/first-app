@@ -362,18 +362,79 @@ export default function AdminNewProductPage() {
           </div>
         </div>
 
-        {/* Section 3: High-Res Image URLs */}
+        {/* Section 3: High-Res Image Uploads */}
         <div className="p-6 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            3. Product Photography (Multiple Images)
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              3. Product Photography (Device Upload & URLs)
+            </h3>
+            <span className="text-[11px] text-zinc-400">Upload high-res photos from your device</span>
+          </div>
 
-          <div className="flex gap-2">
+          {/* Direct File Upload Area from Device */}
+          <label className="border-2 border-dashed border-zinc-700 hover:border-brand-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 text-center cursor-pointer bg-zinc-950/50 hover:bg-zinc-950 transition-all group">
+            <UploadCloud className="w-8 h-8 text-zinc-500 group-hover:text-brand-500 transition-colors" />
+            <div>
+              <p className="text-xs font-bold text-white group-hover:text-brand-400 transition-colors">
+                Click to upload shoe photos directly from device
+              </p>
+              <p className="text-[10px] text-zinc-500">
+                Supports JPG, PNG, WEBP (Select one or multiple files)
+              </p>
+            </div>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+
+                for (let i = 0; i < files.length; i++) {
+                  const file = files[i];
+                  const formData = new FormData();
+                  formData.append("file", file);
+
+                  try {
+                    const res = await fetch("/api/admin/upload", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                      setImageUrls((prev) => [...prev, data.url]);
+                      toast({
+                        title: "Image Uploaded",
+                        description: file.name,
+                        type: "success",
+                      });
+                    } else {
+                      toast({
+                        title: "Upload Failed",
+                        description: data.error || "Could not upload file",
+                        type: "error",
+                      });
+                    }
+                  } catch (err) {
+                    toast({
+                      title: "Upload Error",
+                      description: "Failed to upload from device.",
+                      type: "error",
+                    });
+                  }
+                }
+              }}
+            />
+          </label>
+
+          {/* Optional External URL Bar */}
+          <div className="flex gap-2 pt-2">
             <input
               type="url"
               value={newImageUrl}
               onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="Paste image URL (Unsplash or Cloudinary)..."
+              placeholder="Or paste external image URL (optional)..."
               className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
             />
             <button

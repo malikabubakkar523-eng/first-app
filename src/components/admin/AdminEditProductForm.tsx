@@ -330,9 +330,64 @@ export function AdminEditProductForm({
 
           {/* Product Gallery Images */}
           <div className="p-6 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-4">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-              Product Images ({images.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Product Images ({images.length})
+              </h3>
+              <span className="text-[11px] text-zinc-400">Direct Device Upload</span>
+            </div>
+
+            {/* Direct Device Upload Input */}
+            <label className="border-2 border-dashed border-zinc-700 hover:border-brand-500 rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 text-center cursor-pointer bg-zinc-950/50 hover:bg-zinc-950 transition-all group">
+              <Plus className="w-5 h-5 text-zinc-500 group-hover:text-brand-500 transition-colors" />
+              <p className="text-xs font-bold text-white group-hover:text-brand-400">
+                Upload image from device
+              </p>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (!files || files.length === 0) return;
+
+                  for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const formData = new FormData();
+                    formData.append("file", file);
+
+                    try {
+                      const res = await fetch("/api/admin/upload", {
+                        method: "POST",
+                        body: formData,
+                      });
+                      const data = await res.json();
+                      if (res.ok && data.success) {
+                        setImages((prev) => [...prev, data.url]);
+                        toast({
+                          title: "Image Uploaded",
+                          description: file.name,
+                          type: "success",
+                        });
+                      } else {
+                        toast({
+                          title: "Upload Failed",
+                          description: data.error || "Could not upload file",
+                          type: "error",
+                        });
+                      }
+                    } catch (err) {
+                      toast({
+                        title: "Upload Error",
+                        description: "Failed to upload from device.",
+                        type: "error",
+                      });
+                    }
+                  }
+                }}
+              />
+            </label>
 
             <div className="space-y-3">
               {images.map((url, idx) => (
@@ -359,7 +414,7 @@ export function AdminEditProductForm({
                   type="url"
                   value={newImageUrl}
                   onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="Paste new image URL..."
+                  placeholder="Or paste external image URL (optional)..."
                   className="flex-1 px-3 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
                 <button
@@ -367,7 +422,7 @@ export function AdminEditProductForm({
                   onClick={handleAddImage}
                   className="px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold"
                 >
-                  Add
+                  Add URL
                 </button>
               </div>
             </div>

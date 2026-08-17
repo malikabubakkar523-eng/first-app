@@ -115,19 +115,10 @@ export function AdminShopBannerManager({ initialBanner }: { initialBanner: ShopB
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.heading) {
-      toast({
-        title: "Validation Error",
-        description: "Headline is required.",
-        type: "error",
-      });
-      return;
-    }
-
     if (form.mediaType === "video" && !form.videoUrl) {
       toast({
-        title: "Validation Error",
-        description: "Please upload a video or provide a video URL.",
+        title: "Video Required",
+        description: "Please upload a video from your device.",
         type: "error",
       });
       return;
@@ -135,10 +126,18 @@ export function AdminShopBannerManager({ initialBanner }: { initialBanner: ShopB
 
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        heading: form.heading?.trim() || "FRESH STYLES. BOLD MOVES.",
+        ctaText: form.ctaText?.trim() || "SHOP NEW ARRIVALS",
+        ctaLink: form.ctaLink?.trim() || "/shop",
+        imageUrl: form.imageUrl || "/images/shop-banner.png",
+      };
+
       const res = await fetch("/api/admin/shop-banner", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
 

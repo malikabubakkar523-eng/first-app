@@ -201,19 +201,10 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.heading) {
-      toast({
-        title: "Validation Error",
-        description: "Hero slide heading is required.",
-        type: "error",
-      });
-      return;
-    }
-
     if (form.mediaType === "image" && !form.imageUrl) {
       toast({
-        title: "Validation Error",
-        description: "Please provide an image for image slides.",
+        title: "Image Required",
+        description: "Please upload an image from your device.",
         type: "error",
       });
       return;
@@ -221,8 +212,8 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
     if (form.mediaType === "video" && !form.videoUrl) {
       toast({
-        title: "Validation Error",
-        description: "Please upload or provide a video URL for video slides.",
+        title: "Video Required",
+        description: "Please upload a video from your device.",
         type: "error",
       });
       return;
@@ -232,6 +223,9 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
     try {
       const payload = {
         ...form,
+        heading: form.heading?.trim() || "VELOCE PERFORMANCE ATELIER",
+        ctaText: form.ctaText?.trim() || "SHOP THE COLLECTION",
+        ctaLink: form.ctaLink?.trim() || "/shop",
         imageUrl: form.imageUrl || "/images/shop-banner.png",
       };
 

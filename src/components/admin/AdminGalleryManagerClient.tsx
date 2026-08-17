@@ -133,15 +133,27 @@ export function AdminGalleryManagerClient({ initialItems }: { initialItems: Gall
       const data = await res.json();
 
       if (res.ok && data.success) {
+        const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+        const formattedTitle = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
         if (isVideo) {
-          setForm((prev) => ({ ...prev, videoUrl: data.url, mediaType: "video" }));
+          setForm((prev) => ({
+            ...prev,
+            videoUrl: data.url,
+            mediaType: "video",
+            title: prev.title || formattedTitle,
+          }));
           toast({
             title: "Gallery Video Uploaded",
             description: "Video is ready for gallery display.",
             type: "success",
           });
         } else {
-          setForm((prev) => ({ ...prev, imageUrl: data.url }));
+          setForm((prev) => ({
+            ...prev,
+            imageUrl: data.url,
+            title: prev.title || formattedTitle,
+          }));
           toast({
             title: "Gallery Image Uploaded",
             description: "Image uploaded and applied.",
