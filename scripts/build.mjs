@@ -33,10 +33,28 @@ if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "") {
 }
 
 try {
-  console.log("⚡ [Build Step 1/2] Generating Prisma Client...");
+  console.log("⚡ [Build Step 1/3] Generating Prisma Client...");
   execSync("npx prisma generate", { stdio: "inherit", env: process.env });
 
-  console.log("⚡ [Build Step 2/2] Running Next.js production build...");
+  // If a live remote PostgreSQL database URL is configured, automatically push tables and seed
+  const isRemoteDb =
+    process.env.DATABASE_URL &&
+    !process.env.DATABASE_URL.includes("localhost:5432") &&
+    (process.env.DATABASE_URL.includes("postgres") || process.env.DATABASE_URL.includes("prisma"));
+
+  if (isRemoteDb) {
+    try {
+      console.log("⚡ [Build Step 2/3] Auto-syncing database tables (prisma db push)...");
+      execSync("npx prisma db push --accept-data-loss", { stdio: "inherit", env: process.env, timeout: 45000 });
+      
+      console.log("⚡ [Build Step 2.5/3] Auto-seeding initial store data...");
+      execSync("npx tsx prisma/seed.ts", { stdio: "inherit", env: process.env, timeout: 45000 });
+    } catch (dbSyncErr) {
+      console.warn("ℹ️  [Build Notice] Database auto-sync skipped during build:", dbSyncErr.message || dbSyncErr);
+    }
+  }
+
+  console.log("⚡ [Build Step 3/3] Running Next.js production build...");
   execSync("npx next build", { stdio: "inherit", env: process.env });
 } catch (error) {
   console.error("❌ [Build Failed]", error.message || error);
