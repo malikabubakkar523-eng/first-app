@@ -85,14 +85,14 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
         className={cn(
           "sticky top-0 z-40 w-full transition-all duration-300",
           isScrolled
-            ? "bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-sm border-b border-zinc-200/80 dark:border-zinc-800/80 py-2 sm:py-3.5"
-            : "bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-900 py-2.5 sm:py-4.5"
+            ? "bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-xs border-b border-zinc-200/80 dark:border-zinc-800/80 py-1.5 sm:py-3"
+            : "bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-900 py-2 sm:py-3.5"
         )}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between w-full">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 flex items-center justify-between w-full">
           {/* Left: Brand Logo */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="relative h-7 sm:h-8 w-28 sm:w-36 flex items-center transition-transform group-hover:scale-105">
+          <Link href="/" className="flex items-center gap-1.5 group shrink-0" aria-label="VELOCE Home">
+            <div className="relative h-6 sm:h-8 w-24 xs:w-28 sm:w-36 flex items-center transition-transform group-hover:scale-105">
               {/* Dark mode logo */}
               <Image
                 src="/images/veloce-logo.svg"
@@ -112,6 +112,8 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
                 className="object-contain object-left block dark:hidden"
               />
             </div>
+            {/* Brand Dot */}
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 hidden xs:inline-block" />
           </Link>
 
           {/* Center (Desktop Only): Nav Links */}
@@ -148,80 +150,79 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
             })}
           </nav>
 
-          {/* Right: Actions Container */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {/* Search Trigger (Icon on mobile, Pill on desktop) */}
+          {/* Right: Actions Container (Search, Notification, Theme, Bag, Profile) */}
+          <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-1.5 shrink-0">
+            {/* 1. Search Trigger */}
             <button
               onClick={onOpenSearch}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors text-xs border border-transparent sm:border-zinc-200/80 sm:dark:border-zinc-800/80 flex items-center gap-1.5"
+              className="w-10 h-10 sm:w-auto sm:px-3 sm:py-1.5 rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors text-xs flex items-center justify-center gap-1.5 shrink-0"
               aria-label="Search shoes"
             >
-              <Search className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+              <Search className="w-[22px] h-[22px] sm:w-4 sm:h-4 stroke-[1.8]" />
               <span className="hidden sm:inline text-zinc-400 font-medium">Search...</span>
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded border border-zinc-200 dark:border-zinc-700">
                 ⌘K
               </kbd>
             </button>
 
-            {/* Notification Bell Dropdown */}
+            {/* 2. Notification Bell Dropdown */}
             <NotificationDropdown />
 
-            {/* Light / Dark Mode Toggle */}
+            {/* 3. Light / Dark Mode Toggle */}
             <ThemeToggle />
 
-            {/* Desktop-Only Wishlist Button (Mobile is in bottom nav) */}
+            {/* 4. Desktop-Only Wishlist Button (Mobile is in bottom nav) */}
             <Link
               href="/wishlist"
-              className="hidden lg:flex relative p-2 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              className="hidden lg:flex relative w-10 h-10 items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
               aria-label="Wishlist"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="w-[22px] h-[22px] stroke-[1.8]" />
               {mounted && wishlistItems.length > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scaleIn">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scaleIn">
                   {wishlistItems.length}
                 </span>
               )}
             </Link>
 
-            {/* Shopping Cart Button */}
+            {/* 5. Shopping Cart Button */}
             <button
               onClick={openCart}
-              className="relative p-2 rounded-full text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors shrink-0"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-[22px] h-[22px] sm:w-5 sm:h-5 stroke-[1.8]" />
               {mounted && cartItemCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-brand-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                   {cartItemCount}
                 </span>
               )}
             </button>
 
-            {/* Circular User Profile Avatar (Fixed & Prominent on Mobile) */}
+            {/* 6. Profile Icon (22–24px Icon Size with 44×44px Touch Target) */}
             {user ? (
               <Link
                 href={user.role === "ADMIN" ? "/admin" : "/account/profile"}
-                className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all border border-zinc-300 dark:border-zinc-700 shrink-0 ring-1 ring-brand-500/20 shadow-sm"
+                className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors shrink-0"
+                aria-label={`Account profile for ${user.name}`}
                 title={`Account: ${user.name}`}
               >
-                <div className="relative w-8 h-8 sm:w-8 sm:h-8 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-xs overflow-hidden border border-white dark:border-zinc-900 ring-2 ring-brand-500/50 shrink-0 shadow-md">
+                <div className="relative w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-xs overflow-hidden ring-2 ring-brand-500/40 shadow-xs">
                   {user.avatar ? (
                     <Image src={user.avatar} alt={user.name} fill className="object-cover" />
                   ) : (
                     <span className="font-display font-black text-xs">{user.name.charAt(0).toUpperCase()}</span>
                   )}
                 </div>
-                <span className="hidden xl:inline text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate max-w-[80px]">
-                  {user.name.split(" ")[0]}
-                </span>
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="h-8 sm:h-auto px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 text-xs font-bold hover:opacity-90 transition-all flex items-center gap-1.5 shrink-0 shadow-sm border border-zinc-800 dark:border-zinc-200"
+                className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors shrink-0"
+                aria-label="Sign In / Profile"
+                title="Sign In / Profile"
               >
-                <UserIcon className="w-4 h-4 text-brand-400 dark:text-brand-600 sm:text-inherit" />
-                <span className="text-[11px] sm:text-xs font-bold">Sign In</span>
+                <UserIcon className="w-[22px] h-[22px] sm:w-[23px] sm:h-[23px] stroke-[1.8]" />
               </Link>
             )}
           </div>

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Heart, Images, Package, User } from "lucide-react";
+import { Home, Compass, Images, Heart, Package, User } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ export function MobileBottomNav() {
   // Hide on admin routes to allow clean admin experience
   if (pathname.startsWith("/admin")) return null;
 
+  // Exact 6-item order: Home | Shop | Gallery | Wishlist | Orders | Profile
   const items = [
     {
       label: "Home",
@@ -33,17 +34,17 @@ export function MobileBottomNav() {
       isActive: pathname === "/shop" || pathname.startsWith("/shop?"),
     },
     {
-      label: "Wish",
-      href: "/wishlist",
-      icon: Heart,
-      count: wishlistCount,
-      isActive: pathname.startsWith("/wishlist"),
-    },
-    {
       label: "Gallery",
       href: "/gallery",
       icon: Images,
       isActive: pathname.startsWith("/gallery"),
+    },
+    {
+      label: "Wishlist",
+      href: "/wishlist",
+      icon: Heart,
+      count: wishlistCount,
+      isActive: pathname.startsWith("/wishlist"),
     },
     {
       label: "Orders",
@@ -63,8 +64,11 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-200/80 dark:border-zinc-800/80 pt-1.5 px-1 pb-[max(env(safe-area-inset-bottom),6px)] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none">
-      <div className="grid grid-cols-6 items-center max-w-md mx-auto">
+    <nav
+      aria-label="Mobile Navigation Bar"
+      className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-200/80 dark:border-zinc-800/80 pt-2 px-1 pb-[max(env(safe-area-inset-bottom),8px)] shadow-[0_-4px_24px_rgba(0,0,0,0.07)] select-none"
+    >
+      <div className="grid grid-cols-6 items-center w-full max-w-lg mx-auto">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = item.isActive;
@@ -75,40 +79,47 @@ export function MobileBottomNav() {
               href={item.href}
               prefetch={true}
               className={cn(
-                "relative flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-200",
+                "relative flex flex-col items-center justify-center py-1 px-0.5 rounded-xl min-h-[46px] transition-all duration-200 group touch-manipulation",
                 isActive
                   ? "text-zinc-950 dark:text-white font-bold"
                   : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
               )}
             >
-              <div className="relative">
+              <div className="relative flex items-center justify-center">
                 <Icon
                   className={cn(
-                    "w-[19px] h-[19px] transition-transform duration-200",
-                    isActive ? "stroke-[2.5px] scale-105 text-brand-500" : "stroke-2"
+                    "w-[20px] h-[20px] transition-transform duration-200",
+                    isActive
+                      ? "stroke-[2.2] scale-105 text-zinc-950 dark:text-white"
+                      : "stroke-[1.8] text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white"
                   )}
                 />
                 {mounted && item.count !== undefined && item.count > 0 && (
-                  <span className="absolute -top-1 -right-2 bg-brand-500 text-white text-[8.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none">
+                  <span className="absolute -top-1.5 -right-2 bg-brand-500 text-white text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none shadow-xs">
                     {item.count > 9 ? "9+" : item.count}
                   </span>
                 )}
               </div>
+
               <span
                 className={cn(
-                  "text-[9.5px] tracking-tight truncate max-w-full mt-0.5 leading-none",
-                  isActive ? "text-zinc-950 dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400"
+                  "text-[9.5px] tracking-tight truncate max-w-full mt-1 leading-none transition-colors",
+                  isActive
+                    ? "text-zinc-950 dark:text-white font-bold"
+                    : "text-zinc-500 dark:text-zinc-400"
                 )}
               >
                 {item.label}
               </span>
+
+              {/* Active Red Dot Indicator under active navigation item */}
               {isActive && (
-                <span className="w-1 h-1 rounded-full bg-brand-500 absolute -bottom-0.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 absolute -bottom-1 shadow-xs" />
               )}
             </Link>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
