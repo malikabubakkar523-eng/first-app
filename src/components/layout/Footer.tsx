@@ -15,7 +15,7 @@ export function Footer() {
             </div>
             <div>
               <h4 className="text-white font-semibold text-sm">Complimentary Express</h4>
-              <p className="text-xs text-zinc-500 mt-1">Free global shipping on qualifying orders over $150.</p>
+              <p className="text-xs text-zinc-500 mt-1">Free nationwide shipping on qualifying orders over Rs. 5,000.</p>
             </div>
           </div>
 

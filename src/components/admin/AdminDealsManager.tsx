@@ -344,13 +344,13 @@ export function AdminDealsManager({ initialDeals }: { initialDeals: DealItem[] }
 
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Fixed Discount ($) Optional
+                Fixed Discount (PKR / Rs.) Optional
               </label>
               <input
                 type="number"
                 value={fixedDiscount}
                 onChange={(e) => setFixedDiscount(e.target.value)}
-                placeholder="e.g. 50"
+                placeholder="e.g. 1500"
                 className="w-full px-4 py-2.5 text-xs font-mono rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
@@ -472,7 +472,7 @@ export function AdminDealsManager({ initialDeals }: { initialDeals: DealItem[] }
                     {deal.discountPercent
                       ? `${deal.discountPercent}% OFF`
                       : deal.fixedDiscount
-                      ? `$${deal.fixedDiscount} OFF`
+                      ? `Rs. ${deal.fixedDiscount} OFF`
                       : "SPECIAL"}
                   </p>
                 </div>

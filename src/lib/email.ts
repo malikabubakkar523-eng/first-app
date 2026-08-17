@@ -297,7 +297,7 @@ export async function sendDealEmail({
   const discountText = deal.discountPercent
     ? `${deal.discountPercent}% OFF`
     : deal.fixedDiscount
-    ? `$${deal.fixedDiscount} OFF`
+    ? `Rs. ${deal.fixedDiscount} OFF`
     : "EXCLUSIVE SAVINGS";
 
   const subject = `🔥 New VELOCE Drop: ${deal.title} — ${discountText}`;

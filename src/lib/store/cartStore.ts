@@ -108,13 +108,13 @@ export const useCartStore = create<CartStore>()(
         return Math.min(coupon.discountValue, subtotal);
       },
 
-      getShippingFee: (freeThreshold = 150, defaultFee = 15) => {
+      getShippingFee: (freeThreshold = 5000, defaultFee = 250) => {
         const subtotal = get().getSubtotal();
         if (subtotal === 0 || subtotal >= freeThreshold) return 0;
         return defaultFee;
       },
 
-      getTotal: (freeThreshold = 150, defaultFee = 15) => {
+      getTotal: (freeThreshold = 5000, defaultFee = 250) => {
         const subtotal = get().getSubtotal();
         if (subtotal === 0) return 0;
         const discount = get().getDiscount();

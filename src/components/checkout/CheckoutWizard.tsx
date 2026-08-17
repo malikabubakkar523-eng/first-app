@@ -40,13 +40,13 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
   // Form State
   const [email, setEmail] = useState(user?.email || "");
   const [name, setName] = useState(user?.name || "");
-  const [phone, setPhone] = useState(user?.phone || "+1 (555) 349-8120");
+  const [phone, setPhone] = useState(user?.phone || "+92 300 1234567");
 
-  const [street, setStreet] = useState("450 Lexington Ave, Suite 1400");
-  const [city, setCity] = useState("New York");
-  const [state, setState] = useState("NY");
-  const [postalCode, setPostalCode] = useState("10017");
-  const [country, setCountry] = useState("United States");
+  const [street, setStreet] = useState("House 12, Street 4, Sector F-7/2");
+  const [city, setCity] = useState("Islamabad");
+  const [state, setState] = useState("Federal Territory");
+  const [postalCode, setPostalCode] = useState("44000");
+  const [country, setCountry] = useState("Pakistan");
 
   const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "priority">("standard");
   const [paymentMethod, setPaymentMethod] = useState<"CASH_ON_DELIVERY" | "ONLINE_PAYMENT">("ONLINE_PAYMENT");
@@ -58,8 +58,8 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
 
   const subtotal = getSubtotal();
   const discount = getDiscount();
-  const baseShipping = getShippingFee(150, 15);
-  const shippingFee = deliveryMethod === "priority" ? baseShipping + 20 : baseShipping;
+  const baseShipping = getShippingFee(5000, 250);
+  const shippingFee = deliveryMethod === "priority" ? baseShipping + 150 : baseShipping;
   const taxable = Math.max(0, subtotal - discount);
   const tax = taxable * 0.08;
   const total = taxable + shippingFee + tax;
@@ -244,7 +244,7 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+92 300 0000000"
                   className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
                 />
               </div>
@@ -289,7 +289,7 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                   required
                   value={street}
                   onChange={(e) => setStreet(e.target.value)}
-                  placeholder="450 Lexington Ave, Suite 1400"
+                  placeholder="House 12, Street 4, Sector F-7/2"
                   className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
                 />
               </div>
@@ -304,7 +304,7 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                     required
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="New York"
+                    placeholder="Islamabad"
                     className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
                   />
                 </div>
@@ -317,7 +317,7 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                     required
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    placeholder="NY"
+                    placeholder="Punjab / Federal"
                     className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
                   />
                 </div>
@@ -333,7 +333,7 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                     required
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="10017"
+                    placeholder="44000"
                     className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
                   />
                 </div>
@@ -346,7 +346,7 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                     required
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    placeholder="United States"
+                    placeholder="Pakistan"
                     className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
                   />
                 </div>
@@ -402,14 +402,14 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-bold text-zinc-900 dark:text-white">
-                        Global Express Courier (3 - 5 Business Days)
+                        Nationwide Express Courier (2 - 4 Business Days)
                       </p>
                       <span className="text-xs font-bold text-zinc-900 dark:text-white font-mono">
                         {baseShipping === 0 ? "FREE" : formatPrice(baseShipping)}
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      Fully tracked door-to-door delivery with signature confirmation.
+                      Fully tracked door-to-door nationwide delivery with signature confirmation.
                     </p>
                   </div>
                 </label>
@@ -432,10 +432,10 @@ export function CheckoutWizard({ user }: CheckoutWizardProps) {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-bold text-zinc-900 dark:text-white">
-                        Priority Overnight Air Express (1 - 2 Business Days)
+                        Priority Overnight Express Air Cargo (1 - 2 Business Days)
                       </p>
                       <span className="text-xs font-bold text-zinc-900 dark:text-white font-mono">
-                        {formatPrice(baseShipping + 20)}
+                        {formatPrice(baseShipping + 150)}
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-500 mt-0.5">

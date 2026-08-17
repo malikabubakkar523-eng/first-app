@@ -65,7 +65,7 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
         <div className="flex items-center gap-1.5 sm:gap-2 mx-auto truncate text-center">
           <Sparkles className="w-3.5 h-3.5 text-brand-500 shrink-0 animate-pulse" />
           <span className="font-medium tracking-wide truncate">
-            Complimentary Global Express Shipping over $150 &nbsp;•&nbsp; Code:{" "}
+            Complimentary Nationwide Express Shipping over Rs. 5,000 &nbsp;•&nbsp; Code:{" "}
             <strong className="text-white font-mono">VELOCE20</strong>
           </span>
         </div>

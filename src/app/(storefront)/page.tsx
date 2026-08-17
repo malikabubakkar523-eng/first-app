@@ -15,73 +15,84 @@ import {
   Flame,
 } from "lucide-react";
 
-export const revalidate = 30; // ISR for instant response with background refresh
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function HomePage() {
-  // Concurrent Parallel Data Fetching
-  const [
-    heroBanners,
-    categories,
-    featuredProducts,
-    newArrivals,
-    activeDeal,
-    saleProducts,
-  ] = await Promise.all([
-    // Active Hero Banners
-    db.heroBanner.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-    }),
-    // Categories with product counts
-    db.category.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      include: {
-        _count: {
-          select: { products: true },
+  let heroBanners: any[] = [];
+  let categories: any[] = [];
+  let featuredProducts: any[] = [];
+  let newArrivals: any[] = [];
+  let activeDeal: any = null;
+  let saleProducts: any[] = [];
+
+  try {
+    const data = await Promise.all([
+      // Active Hero Banners
+      db.heroBanner.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+      }),
+      // Categories with product counts
+      db.category.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+        include: {
+          _count: {
+            select: { products: true },
+          },
         },
-      },
-    }),
-    // Featured products
-    db.product.findMany({
-      where: { isFeatured: true, status: "ACTIVE" },
-      take: 8,
-      include: {
-        images: { orderBy: { order: "asc" } },
-        category: true,
-        brand: true,
-        sizes: true,
-      },
-    }),
-    // New arrivals
-    db.product.findMany({
-      where: { isNew: true, status: "ACTIVE" },
-      take: 8,
-      orderBy: { createdAt: "desc" },
-      include: {
-        images: { orderBy: { order: "asc" } },
-        category: true,
-        brand: true,
-        sizes: true,
-      },
-    }),
-    // Active flash deal
-    db.deal.findFirst({
-      where: { isActive: true, endDate: { gt: new Date() } },
-      orderBy: { createdAt: "desc" },
-    }),
-    // Sale products for deal section
-    db.product.findMany({
-      where: { salePrice: { not: null, gt: 0 }, status: "ACTIVE" },
-      take: 4,
-      include: {
-        images: { orderBy: { order: "asc" } },
-        category: true,
-        brand: true,
-        sizes: true,
-      },
-    }),
-  ]);
+      }),
+      // Featured products
+      db.product.findMany({
+        where: { isFeatured: true, status: "ACTIVE" },
+        take: 8,
+        include: {
+          images: { orderBy: { order: "asc" } },
+          category: true,
+          brand: true,
+          sizes: true,
+        },
+      }),
+      // New arrivals
+      db.product.findMany({
+        where: { isNew: true, status: "ACTIVE" },
+        take: 8,
+        orderBy: { createdAt: "desc" },
+        include: {
+          images: { orderBy: { order: "asc" } },
+          category: true,
+          brand: true,
+          sizes: true,
+        },
+      }),
+      // Active flash deal
+      db.deal.findFirst({
+        where: { isActive: true, endDate: { gt: new Date() } },
+        orderBy: { createdAt: "desc" },
+      }),
+      // Sale products for deal section
+      db.product.findMany({
+        where: { salePrice: { not: null, gt: 0 }, status: "ACTIVE" },
+        take: 4,
+        include: {
+          images: { orderBy: { order: "asc" } },
+          category: true,
+          brand: true,
+          sizes: true,
+        },
+      }),
+    ]);
+
+    heroBanners = data[0];
+    categories = data[1];
+    featuredProducts = data[2];
+    newArrivals = data[3];
+    activeDeal = data[4];
+    saleProducts = data[5];
+  } catch (error) {
+    console.warn("⚠️ [Prerender Notice] Database query fallback triggered:", error);
+  }
 
   return (
     <div className="space-y-20 sm:space-y-28 pb-24 overflow-hidden">
@@ -131,7 +142,7 @@ export default async function HomePage() {
 
               <div className="relative z-10 self-end">
                 <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-zinc-900/80 backdrop-blur-md text-zinc-300 border border-zinc-700">
-                  {cat._count.products} Pairs
+                  {cat._count?.products ?? 0} Pairs
                 </span>
               </div>
 

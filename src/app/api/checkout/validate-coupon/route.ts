@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { formatPrice } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     if (coupon.minOrderAmount && subtotal < coupon.minOrderAmount) {
       return NextResponse.json(
-        { error: `Minimum order amount for this coupon is $${coupon.minOrderAmount}.` },
+        { error: `Minimum order amount for this coupon is ${formatPrice(coupon.minOrderAmount)}.` },
         { status: 400 }
       );
     }

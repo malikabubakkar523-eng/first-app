@@ -141,7 +141,7 @@ export function AdminCouponsManager({ initialCoupons }: AdminCouponsManagerProps
                 className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
               >
                 <option value="PERCENTAGE">Percentage Off (%)</option>
-                <option value="FIXED">Fixed Amount Off ($)</option>
+                <option value="FIXED">Fixed Amount Off (PKR / Rs.)</option>
               </select>
             </div>
           </div>
@@ -149,7 +149,7 @@ export function AdminCouponsManager({ initialCoupons }: AdminCouponsManagerProps
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Discount Value {discountType === "PERCENTAGE" ? "(%)" : "($)"}
+                Discount Value {discountType === "PERCENTAGE" ? "(%)" : "(PKR / Rs.)"}
               </label>
               <input
                 type="number"
@@ -163,13 +163,13 @@ export function AdminCouponsManager({ initialCoupons }: AdminCouponsManagerProps
 
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Min Order Spend ($)
+                Min Order Spend (PKR / Rs.)
               </label>
               <input
                 type="number"
                 value={minOrderAmount}
                 onChange={(e) => setMinOrderAmount(e.target.value)}
-                placeholder="100"
+                placeholder="3000"
                 className="w-full px-4 py-2.5 text-xs font-mono rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
               />
             </div>
@@ -196,7 +196,7 @@ export function AdminCouponsManager({ initialCoupons }: AdminCouponsManagerProps
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="20% off on all orders over $100"
+              placeholder="20% off on all orders over Rs. 3,000"
               className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
             />
           </div>

@@ -46,7 +46,7 @@ export default async function AdminSettingsPage() {
               </label>
               <input
                 type="text"
-                defaultValue={settings?.currencySymbol || "$"}
+                defaultValue={settings?.currencySymbol || "Rs."}
                 className="w-full px-4 py-2.5 text-xs font-mono rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
               />
             </div>
@@ -69,7 +69,7 @@ export default async function AdminSettingsPage() {
               </label>
               <input
                 type="text"
-                defaultValue={settings?.supportPhone || "+1 (800) 835-6231"}
+                defaultValue={settings?.supportPhone || "+92 (51) 835-6231"}
                 className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
               />
             </div>
@@ -86,21 +86,21 @@ export default async function AdminSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-zinc-400 mb-1.5">
-                Free Express Shipping Spend Threshold ($)
+                Free Express Shipping Spend Threshold (PKR / Rs.)
               </label>
               <input
                 type="number"
-                defaultValue={settings?.freeShippingThreshold || 150}
+                defaultValue={settings?.freeShippingThreshold || 5000}
                 className="w-full px-4 py-2.5 text-xs font-mono rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-zinc-400 mb-1.5">
-                Standard Shipping Flat Rate ($)
+                Standard Shipping Flat Rate (PKR / Rs.)
               </label>
               <input
                 type="number"
-                defaultValue={settings?.defaultShippingFee || 15}
+                defaultValue={settings?.defaultShippingFee || 250}
                 className="w-full px-4 py-2.5 text-xs font-mono rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
               />
             </div>
@@ -122,7 +122,7 @@ export default async function AdminSettingsPage() {
               type="text"
               defaultValue={
                 settings?.announcement ||
-                "Complimentary global express shipping on orders over $150. Use code VELOCE20 for 20% off."
+                "Complimentary nationwide express shipping on orders over Rs. 5,000. Use code VELOCE20 for 20% off."
               }
               className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none"
             />

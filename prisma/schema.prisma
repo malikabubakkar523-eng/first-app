@@ -3,48 +3,46 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String         @id @default(uuid())
-  name         String
-  email        String         @unique
-  passwordHash String
-  role         String         @default("CUSTOMER") // "CUSTOMER" | "ADMIN"
-  phone        String?
-  avatar       String?
-  status       String         @default("ACTIVE") // "ACTIVE" | "SUSPENDED" | "INACTIVE"
-  lastLoginAt  DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-
-  addresses     Address[]
-  orders        Order[]
-  reviews       Review[]
-  wishlist      WishlistItem[]
-  cartItems     CartItem[]
-  notifications Notification[]
-  activities    UserActivity[]
-
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          String         @default("CUSTOMER")
+  phone         String?
+  avatar        String?
+  status        String         @default("ACTIVE")
+  lastLoginAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   orderNotifs   Boolean        @default(true)
   dealNotifs    Boolean        @default(true)
   promoEmails   Boolean        @default(true)
+  addresses     Address[]
+  cartItems     CartItem[]
+  notifications Notification[]
+  orders        Order[]
+  reviews       Review[]
+  activities    UserActivity[]
+  wishlist      WishlistItem[]
 }
 
 model UserActivity {
   id        String   @id @default(uuid())
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   email     String
-  action    String   @default("LOGIN") // "LOGIN" | "LOGOUT" | "REGISTER" | "PASSWORD_CHANGE" | "EMAIL_CHANGE"
-  status    String   @default("SUCCESS") // "SUCCESS" | "FAILED"
+  action    String   @default("LOGIN")
+  status    String   @default("SUCCESS")
   ipAddress String?
   userAgent String?
   device    String?
   details   String?
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([email])
@@ -56,8 +54,8 @@ model EmailLog {
   recipientName  String?
   subject        String
   message        String?
-  type           String   @default("ORDER") // "ORDER" | "WELCOME" | "ADMIN_CUSTOM" | "PROMOTION"
-  status         String   @default("SENT") // "SENT" | "FAILED" | "PENDING"
+  type           String   @default("ORDER")
+  status         String   @default("SENT")
   resendId       String?
   error          String?
   sender         String?  @default("VELOCE Atelier")
@@ -70,7 +68,6 @@ model EmailLog {
 model Address {
   id         String   @id @default(uuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   fullName   String?
   phone      String?
   street     String
@@ -81,6 +78,7 @@ model Address {
   isDefault  Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Category {
@@ -93,7 +91,6 @@ model Category {
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
   products    Product[]
 }
 
@@ -105,37 +102,35 @@ model Brand {
   description String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
   products    Product[]
 }
 
 model Product {
-  id          String         @id @default(uuid())
+  id          String           @id @default(uuid())
   name        String
-  slug        String         @unique
+  slug        String           @unique
   description String
-  details     String?        // Additional specs
+  details     String?
   price       Float
   salePrice   Float?
-  sku         String         @unique
+  sku         String           @unique
   categoryId  String
-  category    Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   brandId     String?
-  brand       Brand?         @relation(fields: [brandId], references: [id], onDelete: SetNull)
-  isFeatured  Boolean        @default(false)
-  isNew       Boolean        @default(false)
-  status      String         @default("ACTIVE") // "ACTIVE" | "ARCHIVED" | "DELETED"
-  rating      Float          @default(5.0)
-  reviewCount Int            @default(0)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-
+  isFeatured  Boolean          @default(false)
+  isNew       Boolean          @default(false)
+  status      String           @default("ACTIVE")
+  rating      Float            @default(5.0)
+  reviewCount Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  brand       Brand?           @relation(fields: [brandId], references: [id])
+  category    Category         @relation(fields: [categoryId], references: [id])
   images      ProductImage[]
   sizes       ProductSize[]
   variants    ProductVariant[]
   reviews     Review[]
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
   wishlist    WishlistItem[]
 
   @@index([categoryId])
@@ -148,35 +143,35 @@ model Product {
 }
 
 model ProductImage {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   url       String
   alt       String?
-  isPrimary Boolean  @default(false)
-  order     Int      @default(0)
+  isPrimary Boolean @default(false)
+  order     Int     @default(0)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId, order])
 }
 
 model ProductVariant {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   colorName String
   colorHex  String
   image     String?
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
 model ProductSize {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  size      String   // e.g. "39", "40", "41", "42", "43", "44", "45"
-  stock     Int      @default(0)
+  size      String
+  stock     Int     @default(0)
   sku       String?
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId, size])
 }
@@ -184,14 +179,14 @@ model ProductSize {
 model CartItem {
   id        String   @id @default(uuid())
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   size      String
   color     String?
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([productId])
@@ -200,10 +195,10 @@ model CartItem {
 model WishlistItem {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
   @@index([userId])
@@ -213,14 +208,13 @@ model Order {
   id                String      @id @default(uuid())
   orderNumber       String      @unique
   userId            String?
-  user              User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   customerName      String
   customerEmail     String
   customerPhone     String?
-  shippingAddress   String      // JSON serialized or full string
-  paymentMethod     String      @default("CASH_ON_DELIVERY") // "CASH_ON_DELIVERY" | "ONLINE_PAYMENT"
-  paymentStatus     String      @default("PENDING") // "PENDING" | "PAID" | "FAILED" | "REFUNDED"
-  orderStatus       String      @default("PENDING") // "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED"
+  shippingAddress   String
+  paymentMethod     String      @default("CASH_ON_DELIVERY")
+  paymentStatus     String      @default("PENDING")
+  orderStatus       String      @default("PENDING")
   subtotal          Float
   discount          Float       @default(0)
   shippingFee       Float       @default(0)
@@ -232,7 +226,7 @@ model Order {
   estimatedDelivery DateTime?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
-
+  user              User?       @relation(fields: [userId], references: [id])
   items             OrderItem[]
 
   @@index([userId])
@@ -244,9 +238,7 @@ model Order {
 model OrderItem {
   id           String   @id @default(uuid())
   orderId      String
-  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId    String?
-  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   productName  String
   productImage String?
   size         String
@@ -254,6 +246,8 @@ model OrderItem {
   price        Float
   quantity     Int
   total        Float
+  product      Product? @relation(fields: [productId], references: [id])
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([productId])
@@ -263,7 +257,7 @@ model Deal {
   id                    String                @id @default(uuid())
   title                 String
   subtitle              String?
-  badge                 String? // e.g. "SPECIAL OFFER", "FLASH SALE"
+  badge                 String?
   bannerImage           String?
   discountPercent       Float?
   fixedDiscount         Float?
@@ -273,7 +267,6 @@ model Deal {
   isNotificationEnabled Boolean               @default(false)
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
-
   notificationLogs      DealNotificationLog[]
 
   @@index([isActive, endDate])
@@ -282,13 +275,13 @@ model Deal {
 model DealNotificationLog {
   id        String   @id @default(uuid())
   dealId    String
-  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
   userId    String?
-  channel   String   // "IN_APP" | "EMAIL"
-  status    String   @default("SENT") // "SENT" | "FAILED" | "PENDING"
+  channel   String
+  status    String   @default("SENT")
   sentAt    DateTime @default(now())
   error     String?
   createdAt DateTime @default(now())
+  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
 
   @@index([dealId, channel])
   @@index([userId, dealId, channel])
@@ -298,7 +291,7 @@ model Coupon {
   id             String    @id @default(uuid())
   code           String    @unique
   description    String?
-  discountType   String    @default("PERCENTAGE") // "PERCENTAGE" | "FIXED"
+  discountType   String    @default("PERCENTAGE")
   discountValue  Float
   minOrderAmount Float?    @default(0)
   maxDiscount    Float?
@@ -315,15 +308,15 @@ model Coupon {
 model Review {
   id         String   @id @default(uuid())
   productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userName   String
   userAvatar String?
   rating     Int      @default(5)
   comment    String
   isVerified Boolean  @default(true)
   createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([userId])
@@ -332,15 +325,15 @@ model Review {
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
-  type      String   @default("SYSTEM") // "ORDER" | "DEAL" | "SYSTEM" | "PROMOTION"
+  type      String   @default("SYSTEM")
   isRead    Boolean  @default(false)
   orderId   String?
   dealId    String?
   productId String?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
 }
@@ -348,11 +341,11 @@ model Notification {
 model GalleryItem {
   id          String   @id @default(uuid())
   title       String
-  category    String   @default("ALL") // "MEN" | "WOMEN" | "EDITORIAL" | "STREETWEAR"
+  category    String   @default("ALL")
   imageUrl    String
   description String?
   shoeModel   String?
-  link        String?  // Optional CTA link
+  link        String?
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -362,43 +355,43 @@ model GalleryItem {
 }
 
 model HeroBanner {
-  id          String   @id @default(uuid())
-  heading     String
-  subtitle    String?
-  badge       String?  @default("SPRING / SUMMER 2026 ARCHIVE")
-  imageUrl    String
-  ctaText     String?  @default("SHOP THE COLLECTION")
-  ctaLink     String?  @default("/shop")
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  heading   String
+  subtitle  String?
+  badge     String?  @default("SPRING / SUMMER 2026 ARCHIVE")
+  imageUrl  String
+  ctaText   String?  @default("SHOP THE COLLECTION")
+  ctaLink   String?  @default("/shop")
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([isActive, order])
 }
 
 model StoreSettings {
-  id                     String   @id @default("default")
-  storeName              String   @default("VELOCE")
-  logo                   String?
-  currencySymbol         String   @default("$")
-  currencyCode           String   @default("USD")
-  supportEmail           String   @default("support@veloce-shoes.com")
-  supportPhone           String   @default("+1 (800) 835-6231")
-  address                String   @default("888 Madison Avenue, New York, NY 10021")
-  freeShippingThreshold  Float    @default(150)
-  defaultShippingFee     Float    @default(15)
-  announcement           String?  @default("Complimentary global express shipping on all orders over $150. Use code VELOCE20 for 20% off.")
-  isMaintenanceMode      Boolean  @default(false)
-  updatedAt              DateTime @updatedAt
+  id                    String   @id @default("default")
+  storeName             String   @default("VELOCE")
+  logo                  String?
+  currencySymbol        String   @default("Rs.")
+  currencyCode          String   @default("PKR")
+  supportEmail          String   @default("support@veloce-shoes.com")
+  supportPhone          String   @default("+92 (51) 835-6231")
+  address               String   @default("Blue Area, Islamabad, Pakistan")
+  freeShippingThreshold Float    @default(5000)
+  defaultShippingFee    Float    @default(250)
+  announcement          String?  @default("Complimentary nationwide express shipping on all orders over Rs. 5,000. Use code VELOCE20 for 20% off.")
+  isMaintenanceMode     Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
 }
 
 model OtpToken {
   id         String    @id @default(uuid())
   email      String
-  codeHash   String    // Hashed 6-digit verification code
-  purpose    String    // "GOOGLE_LOGIN" | "PASSWORD_RESET"
-  userData   String?   // JSON serialized payload for google new user registration
+  codeHash   String
+  purpose    String
+  userData   String?
   expiresAt  DateTime
   attempts   Int       @default(0)
   lastSentAt DateTime  @default(now())

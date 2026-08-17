@@ -1,9 +1,35 @@
 import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
-// Ensure DATABASE_URL is defined during build so Prisma schema validation succeeds
+// Load .env file into process.env if present
+try {
+  const envPath = path.resolve(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, "utf8");
+    for (const line of envContent.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx > 0) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        let val = trimmed.slice(eqIdx + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
+} catch (e) {
+  console.warn("⚠️ Could not load local .env:", e);
+}
+
+// Fallback DATABASE_URL if undefined in CI build container
 if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "") {
-  console.log("ℹ️  [Build Info] No DATABASE_URL found in build environment. Using default schema configuration for Prisma generation.");
-  process.env.DATABASE_URL = "file:./dev.db";
+  process.env.DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/veloce?schema=public";
 }
 
 try {

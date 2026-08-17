@@ -41,9 +41,9 @@ export default function CartPage() {
 
   const subtotal = getSubtotal();
   const discount = getDiscount();
-  const freeShippingThreshold = 150;
-  const shippingFee = getShippingFee(freeShippingThreshold, 15);
-  const total = getTotal(freeShippingThreshold, 15);
+  const freeShippingThreshold = 5000;
+  const shippingFee = getShippingFee(freeShippingThreshold, 250);
+  const total = getTotal(freeShippingThreshold, 250);
 
   const progressToFreeShipping = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
   const amountNeeded = Math.max(0, freeShippingThreshold - subtotal);

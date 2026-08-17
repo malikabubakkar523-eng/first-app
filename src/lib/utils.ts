@@ -5,8 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number, currency: string = "$"): string {
-  return `${currency}${price.toFixed(2)}`;
+export function formatPrice(price: number | null | undefined, currency: string = "Rs. "): string {
+  if (price === null || price === undefined || isNaN(price)) return `${currency}0`;
+  const hasDecimals = price % 1 !== 0;
+  const numStr = hasDecimals
+    ? price.toLocaleString("en-PK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : Math.round(price).toLocaleString("en-PK");
+  return `${currency}${numStr}`;
 }
 
 export function calculateDiscountPercentage(original: number, sale: number): number {

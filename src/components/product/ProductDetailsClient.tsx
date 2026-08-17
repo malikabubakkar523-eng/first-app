@@ -292,7 +292,7 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
               <Truck className="w-4 h-4 text-brand-500 shrink-0" />
               <div>
                 <p className="text-[11px] font-bold text-zinc-900 dark:text-white">Free Express Delivery</p>
-                <p className="text-[10px] text-zinc-400">On all orders over $150</p>
+                <p className="text-[10px] text-zinc-400">On all orders over Rs. 5,000</p>
               </div>
             </div>
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 flex items-center gap-2.5">

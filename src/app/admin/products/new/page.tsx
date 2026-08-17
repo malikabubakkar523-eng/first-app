@@ -230,29 +230,29 @@ export default function AdminNewProductPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Regular Retail Price ($)
+                Regular Retail Price (PKR / Rs.)
               </label>
               <input
                 type="number"
-                step="0.01"
+                step="1"
                 required
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="240.00"
+                placeholder="14500"
                 className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white font-mono focus:outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Promotional Sale Price ($ Optional)
+                Promotional Sale Price (PKR / Rs. Optional)
               </label>
               <input
                 type="number"
-                step="0.01"
+                step="1"
                 value={salePrice}
                 onChange={(e) => setSalePrice(e.target.value)}
-                placeholder="195.00"
+                placeholder="11999"
                 className="w-full px-4 py-3 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white font-mono focus:outline-none"
               />
             </div>

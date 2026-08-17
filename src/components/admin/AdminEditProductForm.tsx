@@ -212,11 +212,11 @@ export function AdminEditProductForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Regular Price ($)
+                  Regular Price (PKR / Rs.)
                 </label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   required
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
@@ -226,11 +226,11 @@ export function AdminEditProductForm({
 
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Sale Price ($) (Optional)
+                  Sale Price (PKR / Rs. Optional)
                 </label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   value={formData.salePrice}
                   onChange={(e) => setFormData({ ...formData, salePrice: e.target.value ? Number(e.target.value) : "" })}
                   className="w-full px-4 py-2.5 text-xs font-mono rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"

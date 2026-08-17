@@ -87,36 +87,20 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📱 Mobile App Builds (Android & iOS)
+## ⚡ Deployment to Vercel
 
-### Android Build
-1. Synchronize web assets with Capacitor:
-   ```bash
-   npx cap sync android
-   ```
-2. Build Debug APK:
-   ```bash
-   cd android
-   ./gradlew assembleDebug
-   ```
-   Artifact output: `android/app/build/outputs/apk/debug/app-debug.apk`
-
-3. Build Release Android App Bundle (AAB) for Google Play:
-   ```bash
-   cd android
-   ./gradlew bundleRelease
-   ```
-
-### iOS Build (Requires macOS & Xcode)
-1. Synchronize iOS project:
-   ```bash
-   npx cap sync ios
-   ```
-2. Open in Xcode:
-   ```bash
-   npx cap open ios
-   ```
-3. In Xcode, configure your Apple Developer Team, signing certificates, and select **Product > Archive** to export the IPA for TestFlight / App Store.
+1. **Push your code to GitHub / GitLab / Bitbucket**.
+2. Go to [Vercel Dashboard](https://vercel.com/new) and **Import** your repository.
+3. Configure the following **Environment Variables** in Vercel Project Settings:
+   - `DATABASE_URL`: Your PostgreSQL / Neon database connection string
+   - `AUTH_SECRET`: A 32+ character secure JWT secret
+   - `NEXT_PUBLIC_APP_URL`: Your production domain (e.g. `https://your-domain.vercel.app`)
+   - `NEXT_PUBLIC_CURRENCY_SYMBOL`: `Rs.`
+   - `NEXT_PUBLIC_CURRENCY_CODE`: `PKR`
+   - `RESEND_API_KEY`: Your Resend API key for transactional emails
+   - `EMAIL_FROM`: `VELOCE Atelier <onboarding@resend.dev>`
+   - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: (Optional) Google OAuth credentials
+4. Click **Deploy**. Vercel will automatically run `prisma generate` via `postinstall` and compile the Next.js production bundle.
 
 ---
 
