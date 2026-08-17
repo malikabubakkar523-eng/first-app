@@ -101,11 +101,12 @@ export default function AdminNewProductPage() {
       const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (res.ok) {
+      if (res.ok && data.success) {
         toast({
           title: "Product Published!",
           description: `${name} has been added to the storefront.`,
@@ -114,14 +115,21 @@ export default function AdminNewProductPage() {
         router.push("/admin/products");
         router.refresh();
       } else {
+        const errorDesc = data.error?.includes("Unauthorized")
+          ? "Please log in first with adminveloco@gmail.com (admin123)"
+          : data.error || "Failed to create product. Please ensure database tables are initialized.";
         toast({
           title: "Error publishing product",
-          description: data.error || "Failed to create product.",
+          description: errorDesc,
           type: "error",
         });
       }
     } catch (err: any) {
-      toast({ title: "Network error", description: err.message, type: "error" });
+      toast({
+        title: "Publishing error",
+        description: err.message || "Failed to connect to server.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
