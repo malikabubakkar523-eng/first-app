@@ -13,13 +13,18 @@ export default async function AdminHeroPage() {
     redirect("/login?callbackUrl=/admin/hero");
   }
 
-  const banners = await db.heroBanner.findMany({
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-  });
+  let banners: any[] = [];
+  try {
+    banners = await db.heroBanner.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminHeroPage fallback:", error);
+  }
 
-  const serializedBanners = banners.map((b) => ({
+  const serializedBanners = (banners || []).map((b) => ({
     ...b,
-    createdAt: b.createdAt.toISOString(),
+    createdAt: b.createdAt ? new Date(b.createdAt).toISOString() : new Date().toISOString(),
   }));
 
   const activeCount = banners.filter((b) => b.isActive).length;

@@ -13,13 +13,18 @@ export default async function AdminGalleryPage() {
     redirect("/login?callbackUrl=/admin/gallery");
   }
 
-  const items = await db.galleryItem.findMany({
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-  });
+  let items: any[] = [];
+  try {
+    items = await db.galleryItem.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminGalleryPage fallback:", error);
+  }
 
-  const serializedItems = items.map((item) => ({
+  const serializedItems = (items || []).map((item) => ({
     ...item,
-    createdAt: item.createdAt.toISOString(),
+    createdAt: item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString(),
   }));
 
   const womenCount = items.filter((i) => i.category === "WOMEN").length;

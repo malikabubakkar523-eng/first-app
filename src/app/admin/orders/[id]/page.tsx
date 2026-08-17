@@ -16,10 +16,15 @@ export default async function AdminOrderDetailPage({
 }) {
   const { id } = params;
 
-  const order = await db.order.findUnique({
-    where: { id },
-    include: { items: true },
-  });
+  let order: any = null;
+  try {
+    order = await db.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminOrderDetailPage fallback:", error);
+  }
 
   if (!order) {
     notFound();

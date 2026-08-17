@@ -19,36 +19,55 @@ import {
 export const revalidate = 0;
 
 export default async function AdminDashboardPage() {
-  // Aggregate Metrics via fast DB engine
-  const [
-    totalOrders,
-    totalProducts,
-    totalCustomers,
-    revenueAgg,
-    pendingOrdersCount,
-    lowStockSizes,
-    activeDealsCount,
-    recentOrders,
-  ] = await Promise.all([
-    db.order.count(),
-    db.product.count(),
-    db.user.count({ where: { role: "CUSTOMER" } }),
-    db.order.aggregate({ _sum: { total: true } }),
-    db.order.count({ where: { orderStatus: "PENDING" } }),
-    db.productSize.findMany({
-      where: { stock: { lte: 4 } },
-      include: { product: true },
-      take: 5,
-    }),
-    db.deal.count({ where: { isActive: true, endDate: { gt: new Date() } } }),
-    db.order.findMany({
-      take: 6,
-      orderBy: { createdAt: "desc" },
-      include: { items: true },
-    }),
-  ]);
+  let totalOrders = 0;
+  let totalProducts = 0;
+  let totalCustomers = 0;
+  let totalRevenue = 0;
+  let pendingOrdersCount = 0;
+  let lowStockSizes: any[] = [];
+  let activeDealsCount = 0;
+  let recentOrders: any[] = [];
 
-  const totalRevenue = revenueAgg._sum.total || 0;
+  try {
+    const [
+      ordersCount,
+      productsCount,
+      customersCount,
+      revenueAgg,
+      pendingCount,
+      lowStock,
+      dealsCount,
+      ordersList,
+    ] = await Promise.all([
+      db.order.count(),
+      db.product.count(),
+      db.user.count({ where: { role: "CUSTOMER" } }),
+      db.order.aggregate({ _sum: { total: true } }),
+      db.order.count({ where: { orderStatus: "PENDING" } }),
+      db.productSize.findMany({
+        where: { stock: { lte: 4 } },
+        include: { product: true },
+        take: 5,
+      }),
+      db.deal.count({ where: { isActive: true, endDate: { gt: new Date() } } }),
+      db.order.findMany({
+        take: 6,
+        orderBy: { createdAt: "desc" },
+        include: { items: true },
+      }),
+    ]);
+
+    totalOrders = ordersCount;
+    totalProducts = productsCount;
+    totalCustomers = customersCount;
+    totalRevenue = revenueAgg._sum.total || 0;
+    pendingOrdersCount = pendingCount;
+    lowStockSizes = lowStock || [];
+    activeDealsCount = dealsCount;
+    recentOrders = ordersList || [];
+  } catch (error) {
+    console.warn("⚠️ AdminDashboardPage DB query fallback:", error);
+  }
 
   const statCards = [
     {

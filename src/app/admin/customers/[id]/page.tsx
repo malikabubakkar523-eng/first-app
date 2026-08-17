@@ -25,20 +25,25 @@ export default async function AdminCustomerDetailPage({
 }) {
   const { id } = params;
 
-  const user = await db.user.findUnique({
-    where: { id },
-    include: {
-      orders: {
-        orderBy: { createdAt: "desc" },
-        include: { items: true },
+  let user: any = null;
+  try {
+    user = await db.user.findUnique({
+      where: { id },
+      include: {
+        orders: {
+          orderBy: { createdAt: "desc" },
+          include: { items: true },
+        },
+        activities: {
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        },
+        addresses: true,
       },
-      activities: {
-        orderBy: { createdAt: "desc" },
-        take: 20,
-      },
-      addresses: true,
-    },
-  });
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminCustomerDetailPage fallback:", error);
+  }
 
   if (!user) {
     notFound();

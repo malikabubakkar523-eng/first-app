@@ -29,19 +29,28 @@ export default async function AdminProductsPage({
     where.status = status;
   }
 
-  const [products, categories] = await Promise.all([
-    db.product.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        images: { orderBy: { order: "asc" } },
-        category: true,
-        brand: true,
-        sizes: true,
-      },
-    }),
-    db.category.findMany({ orderBy: { name: "asc" } }),
-  ]);
+  let products: any[] = [];
+  let categories: any[] = [];
+
+  try {
+    const [prods, cats] = await Promise.all([
+      db.product.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        include: {
+          images: { orderBy: { order: "asc" } },
+          category: true,
+          brand: true,
+          sizes: true,
+        },
+      }),
+      db.category.findMany({ orderBy: { name: "asc" } }),
+    ]);
+    products = prods || [];
+    categories = cats || [];
+  } catch (error) {
+    console.warn("⚠️ AdminProductsPage fallback:", error);
+  }
 
   return (
     <div className="space-y-6">

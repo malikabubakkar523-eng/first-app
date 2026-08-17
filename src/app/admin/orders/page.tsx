@@ -18,11 +18,16 @@ export default async function AdminOrdersPage({
     where.orderStatus = status;
   }
 
-  const orders = await db.order.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { items: true },
-  });
+  let orders: any[] = [];
+  try {
+    orders = await db.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { items: true },
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminOrdersPage fallback:", error);
+  }
 
   return (
     <div className="space-y-6">

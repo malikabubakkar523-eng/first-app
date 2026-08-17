@@ -5,9 +5,14 @@ import { AdminDealsManager } from "@/components/admin/AdminDealsManager";
 export const revalidate = 0;
 
 export default async function AdminDealsPage() {
-  const deals = await db.deal.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  let deals: any[] = [];
+  try {
+    deals = await db.deal.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminDealsPage fallback:", error);
+  }
 
   return (
     <div className="space-y-6">

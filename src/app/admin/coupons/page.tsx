@@ -5,9 +5,14 @@ import { AdminCouponsManager } from "@/components/admin/AdminCouponsManager";
 export const revalidate = 0;
 
 export default async function AdminCouponsPage() {
-  const coupons = await db.coupon.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  let coupons: any[] = [];
+  try {
+    coupons = await db.coupon.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminCouponsPage fallback:", error);
+  }
 
   return (
     <div className="space-y-6">

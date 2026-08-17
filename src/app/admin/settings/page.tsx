@@ -5,7 +5,25 @@ import { Settings, Shield, Truck, Bell, Store } from "lucide-react";
 export const revalidate = 0;
 
 export default async function AdminSettingsPage() {
-  const settings = await db.storeSettings.findFirst();
+  let settings: any = null;
+  try {
+    settings = await db.storeSettings.findFirst();
+  } catch (error) {
+    console.warn("⚠️ AdminSettingsPage fallback:", error);
+  }
+
+  const defaultSettings = {
+    storeName: "VELOCE",
+    supportEmail: "support@veloce-shoes.com",
+    supportPhone: "+92 (51) 835-6231",
+    currencyCode: "PKR",
+    currencySymbol: "Rs.",
+    defaultShippingFee: 250,
+    freeShippingThreshold: 5000,
+    announcement: "Complimentary nationwide express shipping on all orders over Rs. 5,000.",
+  };
+
+  const finalSettings = settings || defaultSettings;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">

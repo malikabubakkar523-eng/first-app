@@ -7,14 +7,19 @@ import { Users, Mail, Eye, ChevronRight } from "lucide-react";
 export const revalidate = 0;
 
 export default async function AdminCustomersPage() {
-  const users = await db.user.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      orders: {
-        select: { total: true },
+  let users: any[] = [];
+  try {
+    users = await db.user.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        orders: {
+          select: { total: true },
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.warn("⚠️ AdminCustomersPage fallback:", error);
+  }
 
   return (
     <div className="space-y-6">
