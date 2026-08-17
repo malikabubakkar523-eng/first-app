@@ -74,8 +74,11 @@ export async function POST(req: NextRequest) {
         avatar: user.avatar,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login error", error);
-    return NextResponse.json({ error: "Internal server error during login." }, { status: 500 });
+    const msg = error?.message?.includes("Can't reach database server")
+      ? "Database connection failed. Please ensure DATABASE_URL is correctly configured."
+      : error?.message || "Internal server error during login.";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

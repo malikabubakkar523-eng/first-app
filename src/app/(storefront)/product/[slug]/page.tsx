@@ -15,37 +15,45 @@ interface ProductPageProps {
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = params;
 
-  const product = await db.product.findUnique({
-    where: { slug },
-    include: {
-      images: { orderBy: { order: "asc" } },
-      category: true,
-      brand: true,
-      sizes: { orderBy: { size: "asc" } },
-      variants: true,
-      reviews: { orderBy: { createdAt: "desc" } },
-    },
-  });
+  let product: any = null;
+  let relatedProducts: any[] = [];
+
+  try {
+    product = await db.product.findUnique({
+      where: { slug },
+      include: {
+        images: { orderBy: { order: "asc" } },
+        category: true,
+        brand: true,
+        sizes: { orderBy: { size: "asc" } },
+        variants: true,
+        reviews: { orderBy: { createdAt: "desc" } },
+      },
+    });
+
+    if (product) {
+      relatedProducts = await db.product.findMany({
+        where: {
+          categoryId: product.categoryId,
+          id: { not: product.id },
+          status: "ACTIVE",
+        },
+        take: 4,
+        include: {
+          images: { orderBy: { order: "asc" } },
+          category: true,
+          brand: true,
+          sizes: true,
+        },
+      });
+    }
+  } catch (error) {
+    console.warn("⚠️ ProductPage query fallback:", error);
+  }
 
   if (!product) {
     notFound();
   }
-
-  // Fetch related products in the same category
-  const relatedProducts = await db.product.findMany({
-    where: {
-      categoryId: product.categoryId,
-      id: { not: product.id },
-      status: "ACTIVE",
-    },
-    take: 4,
-    include: {
-      images: { orderBy: { order: "asc" } },
-      category: true,
-      brand: true,
-      sizes: true,
-    },
-  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-16">

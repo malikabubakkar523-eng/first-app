@@ -73,8 +73,11 @@ export async function POST(req: NextRequest) {
         role: user.role,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration error", error);
-    return NextResponse.json({ error: "Failed to register account." }, { status: 500 });
+    const msg = error?.message?.includes("Can't reach database server")
+      ? "Database connection failed. Please ensure DATABASE_URL is correctly configured."
+      : error?.message || "Failed to register account.";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

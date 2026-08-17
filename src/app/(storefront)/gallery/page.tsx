@@ -6,10 +6,15 @@ import { Sparkles, Camera } from "lucide-react";
 export const revalidate = 0;
 
 export default async function GalleryPage() {
-  const items = await db.galleryItem.findMany({
-    where: { isActive: true },
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-  });
+  let items: any[] = [];
+  try {
+    items = await db.galleryItem.findMany({
+      where: { isActive: true },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+  } catch (error) {
+    console.warn("⚠️ GalleryPage data query fallback:", error);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">

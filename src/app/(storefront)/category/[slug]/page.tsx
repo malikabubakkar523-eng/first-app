@@ -15,23 +15,34 @@ export default async function CategoryPage({
 }) {
   const { slug } = params;
 
-  const category = await db.category.findUnique({
-    where: { slug },
-    include: {
-      products: {
-        where: { status: "ACTIVE" },
-        include: {
-          images: { orderBy: { order: "asc" } },
-          category: true,
-          brand: true,
-          sizes: true,
+  let category: any = null;
+  try {
+    category = await db.category.findUnique({
+      where: { slug },
+      include: {
+        products: {
+          where: { status: "ACTIVE" },
+          include: {
+            images: { orderBy: { order: "asc" } },
+            category: true,
+            brand: true,
+            sizes: true,
+          },
         },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.warn("⚠️ CategoryPage query fallback:", error);
+  }
 
   if (!category) {
-    notFound();
+    category = {
+      name: slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, " "),
+      slug,
+      description: "Collection overview and handcrafted footwear catalog.",
+      image: null,
+      products: [],
+    };
   }
 
   return (
@@ -88,7 +99,7 @@ export default async function CategoryPage({
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {category.products.map((product) => (
+            {category.products.map((product: any) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

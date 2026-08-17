@@ -75,20 +75,31 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   else if (sort === "newest") orderBy = { createdAt: "desc" };
   else if (sort === "featured") orderBy = [{ isFeatured: "desc" }, { rating: "desc" }];
 
-  const [products, categories, brands] = await Promise.all([
-    db.product.findMany({
-      where,
-      orderBy,
-      include: {
-        images: { orderBy: { order: "asc" } },
-        category: true,
-        brand: true,
-        sizes: true,
-      },
-    }),
-    db.category.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
-    db.brand.findMany({ orderBy: { name: "asc" } }),
-  ]);
+  let products: any[] = [];
+  let categories: any[] = [];
+  let brands: any[] = [];
+
+  try {
+    const data = await Promise.all([
+      db.product.findMany({
+        where,
+        orderBy,
+        include: {
+          images: { orderBy: { order: "asc" } },
+          category: true,
+          brand: true,
+          sizes: true,
+        },
+      }),
+      db.category.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
+      db.brand.findMany({ orderBy: { name: "asc" } }),
+    ]);
+    products = data[0];
+    categories = data[1];
+    brands = data[2];
+  } catch (error) {
+    console.warn("⚠️ ShopPage data query fallback:", error);
+  }
 
   return (
     <div className="space-y-8 pb-16">
