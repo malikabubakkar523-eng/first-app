@@ -6,6 +6,7 @@ import { ProductDetailsClient } from "@/components/product/ProductDetailsClient"
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { ChevronRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface ProductPageProps {

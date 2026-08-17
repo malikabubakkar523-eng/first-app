@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { GalleryClient } from "@/components/storefront/GalleryClient";
 import { Sparkles, Camera } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function GalleryPage() {

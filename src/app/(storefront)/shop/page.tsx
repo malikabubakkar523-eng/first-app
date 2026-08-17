@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/storefront/ProductCard";
 import { ShopFiltersClient } from "@/components/shop/ShopFiltersClient";
 import { Sparkles, ArrowRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface ShopPageProps {
