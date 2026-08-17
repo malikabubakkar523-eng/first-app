@@ -45,7 +45,21 @@ export default function AdminNewProductPage() {
   const [brands, setBrands] = useState<any[]>([]);
   const [brandId, setBrandId] = useState("");
 
+  const [adminStatus, setAdminStatus] = useState<"checking" | "admin" | "not_admin">("checking");
+
   React.useEffect(() => {
+    // Check current auth status
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user?.role === "ADMIN") {
+          setAdminStatus("admin");
+        } else {
+          setAdminStatus("not_admin");
+        }
+      })
+      .catch(() => setAdminStatus("not_admin"));
+
     // Fetch live categories and brands
     fetch("/api/content/categories")
       .then((res) => res.json())
@@ -73,28 +87,40 @@ export default function AdminNewProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !sku || !price) {
-      toast({ title: "Name, SKU, and Price are required", type: "error" });
+    if (!name || name.trim() === "") {
+      toast({ title: "Product name is required", type: "error" });
+      return;
+    }
+
+    const cleanPrice = String(price).replace(/[^0-9.]/g, "");
+    if (!cleanPrice || parseFloat(cleanPrice) <= 0) {
+      toast({ title: "Please enter a valid price", type: "error" });
       return;
     }
 
     setLoading(true);
     try {
+      const generatedSku = sku && sku.trim() !== "" 
+        ? sku.trim().toUpperCase() 
+        : `VEL-${name.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+
+      const cleanSalePrice = salePrice ? String(salePrice).replace(/[^0-9.]/g, "") : null;
+
       const payload = {
-        name,
-        sku,
+        name: name.trim(),
+        sku: generatedSku,
         categoryId: categoryId || undefined,
         brandId: brandId || undefined,
-        price: Number(price),
-        salePrice: salePrice ? Number(salePrice) : null,
+        price: parseFloat(cleanPrice),
+        salePrice: cleanSalePrice ? parseFloat(cleanSalePrice) : null,
         description,
         details,
         isFeatured,
         isNew,
-        images: imageUrls,
+        images: imageUrls.length > 0 ? imageUrls : ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&q=80"],
         sizes: Object.entries(sizesStock).map(([sz, st]) => ({
           size: sz,
-          stock: Number(st),
+          stock: Number(st) || 0,
         })),
       };
 
@@ -109,15 +135,13 @@ export default function AdminNewProductPage() {
       if (res.ok && data.success) {
         toast({
           title: "Product Published!",
-          description: `${name} has been added to the storefront.`,
+          description: `${name} has been successfully added to the store catalog.`,
           type: "success",
         });
         router.push("/admin/products");
         router.refresh();
       } else {
-        const errorDesc = data.error?.includes("Unauthorized")
-          ? "Please log in first with adminveloco@gmail.com (admin123)"
-          : data.error || "Failed to create product. Please ensure database tables are initialized.";
+        const errorDesc = data.error || "Failed to create product. Please check input data.";
         toast({
           title: "Error publishing product",
           description: errorDesc,
@@ -154,6 +178,18 @@ export default function AdminNewProductPage() {
           <ArrowLeft className="w-4 h-4" /> Back to Products
         </Link>
       </div>
+
+      {adminStatus === "not_admin" && (
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center justify-between">
+          <span>⚠️ You are not signed in as Administrator. Please login as Admin to ensure all publishing privileges work.</span>
+          <Link
+            href="/login"
+            className="px-3 py-1.5 rounded-lg bg-amber-500 text-black font-bold text-[11px] hover:bg-amber-400"
+          >
+            Login as Admin
+          </Link>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Section 1: Basic Information */}
